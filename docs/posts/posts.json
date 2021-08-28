@@ -1,5 +1,22 @@
 [
   {
+    "path": "posts/2021-08-28-the-map-of-covid19-in-portugal/",
+    "title": "The map of COVID-19 in Portugal",
+    "description": "A brief summary of the COVID-19 distribution in in Portugal.",
+    "author": [
+      {
+        "name": "Xinying Xu",
+        "url": "https://example.com/norajones"
+      }
+    ],
+    "date": "2021-08-28",
+    "categories": [],
+    "contents": "\n\n\n\n",
+    "preview": {},
+    "last_modified": "2021-08-28T12:22:06+08:00",
+    "input_file": {}
+  },
+  {
     "path": "posts/welcome/",
     "title": "Welcome to Blog 1",
     "description": "Welcome to our my blog 1. We hope you enjoy \nreading what we have to say!",
@@ -13,7 +30,7 @@
     "categories": [],
     "contents": "\n\n\n\n",
     "preview": {},
-    "last_modified": "2021-08-28T11:50:42+08:00",
-    "input_file": "welcome.knit.md"
+    "last_modified": "2021-08-28T12:29:11+08:00",
+    "input_file": {}
   }
 ]
