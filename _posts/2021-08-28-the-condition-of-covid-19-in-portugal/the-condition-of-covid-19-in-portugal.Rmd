@@ -1,0 +1,102 @@
+---
+title: "The condition of COVID-19 in Portugal"
+description: |
+  A brief summary of the COVID-19 condition in Portugal.
+author:
+  - name: Xinying Xu
+    url: https://example.com/norajones
+date: 08-28-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(tsibble)
+library(lubridate)
+library(DT)
+library(devtools)
+library(sparkline)
+```
+
+
+```{r}
+# get the COVID-19 data in Portugal.
+pt_comfirmed <- read_csv(here::here("data/confirmed_global.csv")) %>% 
+  rename( Country = "Country/Region") %>% 
+  filter(Country == "Portugal") %>%
+  select(-`Province/State`) %>% 
+  pivot_longer(cols = c(-Country:-Long),
+               names_to = "Date",
+               values_to = "Accumulated_comfirmed")
+```
+
+```{r}
+pt_recovered <- read_csv(here::here("data/recovered_global.csv")) %>% 
+  rename( Country = "Country/Region") %>% 
+  filter(Country == "Portugal") %>%
+  select(-`Province/State`) %>% 
+  pivot_longer(cols = c(-Country:-Long),
+               names_to = "Date",
+               values_to = "Accumulated_recovered")
+```
+
+```{r}
+pt_dead <- read_csv(here::here("data/deaths_global.csv")) %>% 
+  rename( Country = "Country/Region") %>% 
+  filter(Country == "Portugal") %>%
+  select(-`Province/State`) %>% 
+  pivot_longer(cols = c(-Country:-Long),
+               names_to = "Date",
+               values_to = "Accumulated_dead")
+```
+
+```{r}
+newly_pt <- read_csv(here::here("data/newly-cases.csv")) %>% 
+  rename( country = "countriesAndTerritories") %>% 
+  filter(country == "Portugal")
+```
+
+```{r}
+# combine them together
+combined_pt <- pt_comfirmed %>% 
+  full_join(pt_recovered, by = c("Country", "Lat","Long","Date")) %>% 
+  full_join(pt_dead, by = c("Country", "Lat","Long","Date")) %>%
+  select(-Country: -Long) %>% 
+  mutate(New_confirmed = difference(Accumulated_comfirmed, default = 0),
+         New_recovered = difference(Accumulated_recovered, default = 0),
+         New_dead = difference(Accumulated_dead, default = 0))
+```
+
+
+```{r eval=FALSE}
+# only focus the period from the last 3 months.
+pt_tidy <- combined_pt %>% 
+  mutate(Date = mdy(Date),
+         Date = as.Date(Date,format = "%Y-%m-%d"),
+         Year = year(Date),
+         Month = month(Date),
+         Day = day(Date)) %>% 
+  filter(Year == 2021 & (Month == 6 | Month == 7 | Month == 8)) %>% 
+  select(-Year:-Day) %>% 
+  pivot_longer(cols = -Date,
+               names_to = "Issue",
+               values_to = "Amount") %>% 
+  pivot_wider(id_cols = Issue,
+              names_from = Date,
+              values_from = Amount)
+  
+```
+
+```{r}
+datatable(combined_pt, 
+          filter = "top",
+          rownames = FALSE,
+          colnames = c("Date","Comfirmed", "Recoverd", "Dead", "New Comfirmed", "New Recovered", "New Dead"),
+          caption = "The overall COVID-19 data in Portugal")
+```
