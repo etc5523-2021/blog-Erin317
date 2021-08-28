@@ -94,3 +94,43 @@ datatable(combined_pt,
           caption = "Table1: The overall COVID-19 data in Portugal") 
 
 ```
+
+# Exploratory data analysis
+### The summary of COVID-19 cases in Portugal
+
+It can seen directly from the plot, although there are still confirmed cases everyday, corresponding with a high recovery rate, which must be related with popularization of vaccines, we'll talk about it in the next part. In addition, we might occur some outliers, the value of the new confirmed variable suddenly be zero, it doesn't make sense that recovery rate is zero, just ignore this issue.
+
+```{r}
+# plot the newly reported condition, covering the period in the recent 3 months.
+pt_plot <- combined_pt %>%
+  select(-Accumulated_comfirmed, -Accumulated_recovered, -Accumulated_dead) %>% 
+  mutate(Year = year(Date),
+         Month = month(Date),
+         Day = day(Date)) %>% 
+  filter(Year == 2021 & (Month == 6 | Month == 7 | Month == 8)) %>% 
+  select(-Year:-Day)
+```
+
+```{r}
+plot <- ggplot(pt_plot) +
+  geom_line(aes(x = Date, y = log(New_confirmed)),
+            bin = 50, 
+            color = "#84142D", 
+            alpha = 0.8, 
+            size = .5)+
+  geom_line(aes(x = Date, y = log(New_recovered)),
+            bin = 100, 
+            color = "#FEA82F", 
+            alpha = 0.8,
+            size = .5, 
+            linetype = "dot")+
+  geom_col(aes(x = Date, y = log(New_dead)),
+           fill = "#C4B6B6")+
+  theme_bw()+
+  xlab("Date(2021)")+
+  ylab("Amount")+
+  labs(title = "The trend of COVID-19 in recent 3 months in Portugal.")
+
+ggplotly(plot)
+```
+
