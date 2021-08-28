@@ -20,10 +20,14 @@ library(tidyverse)
 library(tsibble)
 library(lubridate)
 library(DT)
-library(devtools)
-library(sparkline)
+library(plotly)
 ```
 
+# Data description
+
+The dataset contains the variables about the accumulated confirmed amount, accumulated recovered amount amount and accumulated dead amount, from the beginning of the outbreak to the present. You can find the data from the github of [JOHNS HOPKINS](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series), which supports the worldwide data of COVID-19, in this blog, I only analyse Portugal. And after wangling data, I use `tsibble::difference` to add some variables holds in information of the new daily cases: new confirmed, new recovered and new dead amount. 
+
+The table below records the cases which related the COVID-19, it's designed to explore data by yourself. Let's try!
 
 ```{r}
 # get the COVID-19 data in Portugal.
@@ -70,33 +74,23 @@ combined_pt <- pt_comfirmed %>%
   select(-Country: -Long) %>% 
   mutate(New_confirmed = difference(Accumulated_comfirmed, default = 0),
          New_recovered = difference(Accumulated_recovered, default = 0),
-         New_dead = difference(Accumulated_dead, default = 0))
-```
-
-
-```{r eval=FALSE}
-# only focus the period from the last 3 months.
-pt_tidy <- combined_pt %>% 
+         New_dead = difference(Accumulated_dead, default = 0)) %>% 
   mutate(Date = mdy(Date),
-         Date = as.Date(Date,format = "%Y-%m-%d"),
-         Year = year(Date),
-         Month = month(Date),
-         Day = day(Date)) %>% 
-  filter(Year == 2021 & (Month == 6 | Month == 7 | Month == 8)) %>% 
-  select(-Year:-Day) %>% 
-  pivot_longer(cols = -Date,
-               names_to = "Issue",
-               values_to = "Amount") %>% 
-  pivot_wider(id_cols = Issue,
-              names_from = Date,
-              values_from = Amount)
-  
+         Date = as.Date(Date,format = "%Y-%m-%d"))
 ```
 
 ```{r}
 datatable(combined_pt, 
           filter = "top",
           rownames = FALSE,
-          colnames = c("Date","Comfirmed", "Recoverd", "Dead", "New Comfirmed", "New Recovered", "New Dead"),
-          caption = "The overall COVID-19 data in Portugal")
+          class="stripe hover",
+          colnames = c("Date",
+                       "Comfirmed", 
+                       "Recoverd", 
+                       "Dead",
+                       "New Comfirmed",
+                       "New Recovered",
+                       "New Dead"),
+          caption = "Table1: The overall COVID-19 data in Portugal") 
+
 ```
