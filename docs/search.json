@@ -1,0 +1,20 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About this blog",
+      "description": "This plog manly discuss about the situation of the coronavirus in Portugal.",
+      "author": [],
+      "contents": "\n\n\n\n",
+      "last_modified": "2021-08-28T11:46:19+08:00"
+    },
+    {
+      "path": "index.html",
+      "title": "Blog 1",
+      "author": [],
+      "contents": "\n\n\n\n",
+      "last_modified": "2021-08-28T11:46:19+08:00"
+    }
+  ],
+  "collections": ["posts/posts.json"]
+}
