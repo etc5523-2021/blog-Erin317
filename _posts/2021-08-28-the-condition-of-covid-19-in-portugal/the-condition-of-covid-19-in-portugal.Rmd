@@ -86,7 +86,11 @@ datatable(combined_pt,
           filter = "top",
           rownames = FALSE,
           class="stripe hover",
-   
+          extensions = 'Buttons', 
+          options = list(initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#F0E5CF', 'color': '#000'});","}"),
+    dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
     colnames = c("Date",
                       "Comfirmed",
                       "Recoverd", 
@@ -135,7 +139,7 @@ plot <- ggplot(pt_plot) +
             alpha = 0.8,
             size = .5)+
   geom_col(aes(x = Date, y = log(New_dead)),
-           fill = "#C4B6B6",
+           fill = "#F0E5CF",
            bin = 50, )+
   theme_bw()+
   ylab("Amount")+
@@ -143,3 +147,12 @@ plot <- ggplot(pt_plot) +
 
 ggplotly(plot)
 ```
+
+### The 
+
+```{r}
+vaccine_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>% 
+  rename(Country = "ReportingCountry") %>% 
+  filter(Country == "Portugal")
+```
+
