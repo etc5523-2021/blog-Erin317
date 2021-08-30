@@ -222,7 +222,10 @@ summary2 <- summary_pt %>%
          dose_comp_rate = total_complete_Dose/GroupPopulation*100) %>% 
   filter(Week == '2021-33') %>% 
   select(dosefirst_comp_rate, dose_comp_rate) %>% 
-  unique()
+  unique() %>% 
+  pivot_longer(cols = c(dosefirst_comp_rate:dose_comp_rate),
+               names_to = "Issue",
+               values_to = "Value")
 ```
 
 ```{r}
@@ -243,26 +246,66 @@ summary <- bind_cols(summary1, summary3) %>%
   filter(Issue != 'death_rate')
 ```
 
-```{r, eval=FALSE}
-gt(summary) %>% 
-  tab_header(title = "The brief summary about the covid-19 in Portugal",
-             subtitle = "About infected cases, patients condition and lockdown length")
-```
+<figure>
+  <figcaption>
+    <strong id="pt-caption">Table2: Summary of COVID-19 effects in Portugal</strong><br>
+    <span id="pt-summary">Based on 3 aspects: infected cases, patients condition and lockdown length.</span>
+  </figcaption>
+  <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
+   <tr>
+    <th>Date</th>
+    <th>Issue</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>Accumulated comfirmed</td>
+    <td>1030,791</td>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>Accumulated dead</td>
+    <td>17,703</td>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>Hospital total patients</td>
+    <td>544</td>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>ICU total patients</td>
+    <td>544</td>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>length of lockdown</td>
+    <td>312</td>
+  </tr>
+  </table>
+</figure>
 
-<table>
-  <tr>
-    <th>Company</th>
-    <th>Contact</th>
-    <th>Country</th>
+
+<figure>
+  <figcaption>
+    <strong id="vacc-caption">Table3: Summary of COVID-19 vaccine coverage in Portugal</strong><br>
+    <span id="vacc-summary">About the total first dose rate and total vaccination completion rate of all group.</span>
+  </figcaption>
+  <table aria-labelledby="vacc-caption" aria-describedby="vacc-summary">
+   <tr>
+    <th>Date<br></th>
+    <th>Issue<br></th>
+    <th>Value<br>(%)</th>
   </tr>
   <tr>
-    <td>Alfreds Futterkiste</td>
-    <td>Maria Anders</td>
-    <td>Germany</td>
+    <td>2021-08-27</td>
+    <td>First dose rate</td>
+    <td>92.50</td>
   </tr>
   <tr>
-    <td>Centro comercial Moctezuma</td>
-    <td>Francisco Chang</td>
-    <td>Mexico</td>
+    <td>2021-08-27</td>
+    <td>dose completion rate</td>
+    <td>81.55</td>
   </tr>
-</table>
+  </table>
+</figure>
