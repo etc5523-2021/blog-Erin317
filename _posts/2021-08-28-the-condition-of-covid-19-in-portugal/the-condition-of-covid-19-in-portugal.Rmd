@@ -158,7 +158,7 @@ ggplotly(plot1)
 
 ### The popularitation of COVID-19 vaccine in Portugal
 
-This plot below shows data reported at national level. It can be seen that the group which are above 60 years old, are more willing to get vaccinated, the vaccination completion rate is higher than other group. However, the young group which age range is 18 to 24, only 39.5% of them have completed the vaccination. The elders believe on the vaccine effectiveness. In order to easy to explore, I adjust the unit of probability to 1000%.
+This plot below shows data reported at national level. It can be seen that the group which are above 60 years old, are more willing to get vaccinated, the vaccination completion rate is higher than other group. However, the young group which age range is 18 to 24, only 39.5% of them have completed the vaccination. The elders believe on the vaccine effectiveness. In order to easy to explore, I adjust the unit of probability to 100%.
 
 ```{r}
 vaccine_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>% 
