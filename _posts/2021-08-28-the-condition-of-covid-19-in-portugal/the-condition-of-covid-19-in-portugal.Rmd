@@ -195,7 +195,7 @@ plot2 <-ggplot(vaccine_pt)+
 ggplotly(plot2)
 ```
 
-### Summary
+# Summary
 
 ```{r}
 summary_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>% 
