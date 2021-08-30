@@ -27,7 +27,7 @@ library(DT)
 library(plotly)
 #remotes::install_github("joachim-gassen/tidycovid19")
 library(tidycovid19)
-library(viridis)
+library(gt)
 ```
 
 # Data description
@@ -95,8 +95,8 @@ datatable(combined_pt,
           options = list(pageLength = 5,
                          initComplete = JS(
                             "function(settings, json) {",
-                            "$(this.api().table().header()).css({'background-color': '#F0E5CF',
-                            'color': '#000'});","}"),
+                            "$(this.api().table().header()).css({'background-color': '#4B6587',
+                            'color': '#FDFAF6'});","}"),
                          dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
           colnames = c("Date",
                       "Comfirmed",
@@ -146,7 +146,7 @@ plot1 <- ggplot(pt_plot) +
             alpha = 0.8,
             size = .5)+
   geom_col(aes(x = Date, y = log(New_dead)),
-           fill = "#F0E5CF",
+           fill = "#F3F1F5",
            bin = 50, )+
   theme_bw()+
   ylab("Amount")+
@@ -171,25 +171,98 @@ vaccine_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>%
          Group != "1_Age60+",
          !is.na(GroupPopulation)) %>%
   group_by(Group, GroupPopulation) %>% 
-  summarise(complete_vac = sum(SecondDose)) %>% 
-  mutate(vacc_done_prop = complete_vac/GroupPopulation*1000)
+  mutate(second_done_prop = SecondDose/GroupPopulation*100)
 
 ```
 
 
 ```{r}
 plot2 <-ggplot(vaccine_pt)+
-  geom_col(aes(x = Group, 
-                    y = vacc_done_prop,
+  geom_boxplot(aes(x = Group, 
+                    y = second_done_prop,
                     group = Group,
                     fill = Group),
                alpha = .6)+
   theme_bw()+
-  geom_hline(yintercept = 800, color = "red")+
+  geom_hline(yintercept = 10, color = "red")+
   scale_fill_brewer(palette ="OrRd")+
+  xlab("")+
   ylab("Daily condition of vaccination")+
   labs(title = "The plot of vaccination of all kinds of groups in Portugal",
-      subtitle = "1000%")
+      subtitle = "1000%")+
+  coord_flip()
+
 ggplotly(plot2)
 ```
 
+### Summary
+
+```{r}
+summary_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>% 
+  rename(Country = "ReportingCountry",
+         SecondDose = `Second dose`,
+         GroupPopulation = `Group population`) %>%
+  filter(Country == "Portugal")
+```
+
+
+```{r}
+summary1 <- combined_pt %>%
+  filter(Date == "2021-08-27") %>% 
+  mutate(death_rate = Accumulated_dead / Accumulated_comfirmed*100) %>% 
+  select(Date,Accumulated_comfirmed, Accumulated_dead, death_rate)
+```
+
+```{r}
+summary2 <- summary_pt %>% 
+  filter(Group == 'ALL') %>% 
+  mutate(total_complete_Dose = sum(SecondDose),
+         total_first_Dose = sum(`First dose`),
+         dosefirst_comp_rate = total_first_Dose/GroupPopulation*100,
+         dose_comp_rate = total_complete_Dose/GroupPopulation*100) %>% 
+  filter(Week == '2021-33') %>% 
+  select(dosefirst_comp_rate, dose_comp_rate) %>% 
+  unique()
+```
+
+```{r}
+summary3 <- merged %>% 
+  filter(country == "Portugal") %>% 
+  mutate(total_hosp_patient = sum(!is.na(hosp_patients)),
+         total_icu_patient  = sum(!is.na(icu_patients)),
+         lockdown_length = sum(lockdown)) %>% 
+  filter(date == "2021-08-27") %>% 
+  select(total_hosp_patient, total_icu_patient, lockdown_length)
+```
+
+```{r}
+summary <- bind_cols(summary1, summary3) %>% 
+  pivot_longer(cols = c(Accumulated_comfirmed:lockdown_length),
+               names_to = "Issue",
+               values_to = "Value") %>% 
+  filter(Issue != 'death_rate')
+```
+
+```{r, eval=FALSE}
+gt(summary) %>% 
+  tab_header(title = "The brief summary about the covid-19 in Portugal",
+             subtitle = "About infected cases, patients condition and lockdown length")
+```
+
+<table>
+  <tr>
+    <th>Company</th>
+    <th>Contact</th>
+    <th>Country</th>
+  </tr>
+  <tr>
+    <td>Alfreds Futterkiste</td>
+    <td>Maria Anders</td>
+    <td>Germany</td>
+  </tr>
+  <tr>
+    <td>Centro comercial Moctezuma</td>
+    <td>Francisco Chang</td>
+    <td>Mexico</td>
+  </tr>
+</table>
