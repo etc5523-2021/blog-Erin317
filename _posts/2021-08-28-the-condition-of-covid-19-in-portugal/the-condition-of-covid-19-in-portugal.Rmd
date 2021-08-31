@@ -307,7 +307,7 @@ summary3 <- vaccine_pt %>%
   <tr>
     <td>2021-08-27</td>
     <td>Death rate</td>
-    <td >1.72</td>
+    <td style="text-align:right;">1.72</td>
   </tr>
   </table>
 </figure>
@@ -344,7 +344,7 @@ summary3 <- vaccine_pt %>%
     <td>100.00</td>
   </tr>
    <tr style="text-align:right;">
-    <td>Age80+</td>
+    <td style="text-align:left;">Age80+</td>
     <td>97.66</td>
   </tr>
   </table>
