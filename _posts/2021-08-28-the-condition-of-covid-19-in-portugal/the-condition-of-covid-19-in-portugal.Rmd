@@ -19,6 +19,10 @@ knitr::opts_chunk$set(echo = FALSE,
                       options("scipen"=100, "digits"=4))
 ```
 
+```{css}
+d-article figure tr:hover {background-color: #EEEEEE;}
+```
+
 ```{r}
 library(tidyverse)
 library(tsibble)
@@ -28,6 +32,13 @@ library(plotly)
 #remotes::install_github("joachim-gassen/tidycovid19")
 library(tidycovid19)
 ```
+
+# Introduction 
+
+Since December 2019,the outbreak began. Since that, the disease has spread worldwide, leading to ongoing pandemic. Millions died, but we're still not sure what caused it yet. This blog has collected the newest data for readers to explore, and we meanly focus the COVID-19 situation in Portugal, which located on the Iberian Peninsula, in south-western Europe.
+
+This blog aimed to analyse the total cases data and the coverage of vaccination at all kinds of groups.
+
 
 # Data description
 
@@ -194,7 +205,7 @@ plot2 <-ggplot(vaccine_pt)+
 ggplotly(plot2)
 ```
 
-# Summary
+# Numerical summary
 
 ```{r}
 summary_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>% 
@@ -247,7 +258,6 @@ summary3 <- vaccine_pt %>%
   summarise(vac_coverage = total_seconddose/GroupPopulation*100) %>% 
   unique()
 ```
-
 
 <figure>
   <figcaption>
@@ -349,3 +359,10 @@ summary3 <- vaccine_pt %>%
   </tr>
   </table>
 </figure>
+
+
+According to these numerical statistical tables, we can know that, 
+
+# Citation
+
+

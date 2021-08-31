@@ -1,7 +1,7 @@
 name: "ETC5523-blog1"
 title: "Blog 1"
 description: |
-  The situation of the COVID19 in Portugal
+  The COVID19 in Portugal
 output_dir: "docs"
 navbar:
   right:
