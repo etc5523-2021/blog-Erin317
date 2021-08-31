@@ -122,7 +122,7 @@ map_covid19(merged, type = "confirmed", region = "Europe")
 
 ### The total of COVID-19 cases in Portugal
 
-It can seen directly from the plot, although there are still confirmed cases everyday, corresponding with a high recovery rate, which must be related with popularization of vaccines. In addition, we might occur some outliers, the value of the new confirmed variable suddenly be zero after 4th August, it doesn't make sense that recovery rate is zero, just ignore this issue. 
+It can seen directly from the plot, although there are still confirmed cases everyday, corresponding with a high recovery rate, which must be related with popularization of vaccines. In addition, we might occur missing value, the value of the new confirmed variable suddenly missed since 4th Aug, that will result in errors when calculating.
 
 In addition, there's a big gap since 20th May 2020, the new recovery rate dropped to 0, but after that, it rose slowly back to normal. At the beginning of this year, death rate increased at a peak, but soon afterwards the disease slowed down until now.
 
@@ -240,16 +240,6 @@ summary2 <- summary_pt %>%
                values_to = "Value")
 ```
 
-```{r eval=FALSE}
-summary3 <- merged %>% 
-  filter(country == "Portugal") %>% 
-  mutate(total_hosp_patient = sum(!is.na(hosp_patients)),
-         total_icu_patient  = sum(!is.na(icu_patients)),
-         lockdown_length = sum(lockdown)) %>% 
-  filter(date == "2021-08-27") %>% 
-  select(total_hosp_patient, total_icu_patient, lockdown_length)
-```
-
 ```{r}
 summary3 <- vaccine_pt %>% 
   mutate(total_seconddose = sum(SecondDose)) %>% 
@@ -317,7 +307,7 @@ summary3 <- vaccine_pt %>%
   <tr>
     <td>2021-08-27</td>
     <td>Death rate</td>
-    <td style="text-align:right;">1.72</td>
+    <td >1.72</td>
   </tr>
   </table>
 </figure>
