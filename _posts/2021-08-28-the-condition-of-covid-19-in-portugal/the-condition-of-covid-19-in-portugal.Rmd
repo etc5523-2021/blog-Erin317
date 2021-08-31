@@ -27,7 +27,6 @@ library(DT)
 library(plotly)
 #remotes::install_github("joachim-gassen/tidycovid19")
 library(tidycovid19)
-library(gt)
 ```
 
 # Data description
@@ -208,10 +207,23 @@ summary_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>%
 
 ```{r}
 summary1 <- combined_pt %>%
-  filter(Date == "2021-08-27") %>% 
-  mutate(death_rate = Accumulated_dead / Accumulated_comfirmed*100) %>% 
-  select(Date,Accumulated_comfirmed, Accumulated_dead, death_rate)
+  filter(Date == "2021-08-27") %>%
+  mutate("Death rate" = Accumulated_dead / Accumulated_comfirmed*100,
+         "Confirmed rate" = Accumulated_comfirmed / 8578859 *100,
+         "Recovery rate" = 912620 / Accumulated_comfirmed*100) %>% 
+  select(Date,Accumulated_comfirmed, Accumulated_dead, `Death rate`, `Confirmed rate`,`Recovery rate`)
 ```
+
+```{r}
+summary1_mean <- combined_pt %>% 
+  filter(New_recovered >= 0) %>% 
+  mutate(mean_new_confirmed = mean(New_confirmed, na.rm = TRUE),
+         mean_new_dead = mean(New_dead,na.rm = TRUE),
+         mean_new_recovery = mean(New_recovered,na.rm = TRUE)) %>% 
+  select(mean_new_confirmed, mean_new_dead, mean_new_recovery) %>% 
+  unique()
+```
+
 
 ```{r}
 summary2 <- summary_pt %>% 
@@ -228,7 +240,7 @@ summary2 <- summary_pt %>%
                values_to = "Value")
 ```
 
-```{r}
+```{r eval=FALSE}
 summary3 <- merged %>% 
   filter(country == "Portugal") %>% 
   mutate(total_hosp_patient = sum(!is.na(hosp_patients)),
@@ -239,48 +251,73 @@ summary3 <- merged %>%
 ```
 
 ```{r}
-summary <- bind_cols(summary1, summary3) %>% 
-  pivot_longer(cols = c(Accumulated_comfirmed:lockdown_length),
-               names_to = "Issue",
-               values_to = "Value") %>% 
-  filter(Issue != 'death_rate')
+summary3 <- vaccine_pt %>% 
+  mutate(total_seconddose = sum(SecondDose)) %>% 
+  group_by(Group) %>% 
+  summarise(vac_coverage = total_seconddose/GroupPopulation*100) %>% 
+  unique()
 ```
+
 
 <figure>
   <figcaption>
-    <strong id="pt-caption">Table2: Summary of COVID-19 effects in Portugal</strong><br>
-    <span id="pt-summary">Based on 3 aspects: infected cases, patients condition and lockdown length.</span>
+    <strong id="pt-caption">Table2: Summary of COVID-19 cases in Portugal</strong><br>
+    <span id="pt-summary">Accumulated cases data till now and the average of new daily cases.</span>
   </figcaption>
   <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
    <tr>
     <th>Date</th>
     <th>Issue</th>
-    <th>Value</th>
+    <th>Total</th>
+    <th>Mean (new cases/day)</th>
   </tr>
   <tr>
     <td>2021-08-27</td>
     <td>Accumulated comfirmed</td>
     <td>1030,791</td>
+    <td style="text-align:right;">1,764</td>
+  </tr>
+  <tr>
+    <td>2021-08-27</td>
+    <td>Accumulated recovery</td>
+    <td>912,620</td>
+    <td style="text-align:right;">1,565</td>
   </tr>
   <tr>
     <td>2021-08-27</td>
     <td>Accumulated dead</td>
     <td>17,703</td>
+    <td style="text-align:right;">30</td>
+  </tr>
+  </table>
+</figure>
+  
+  
+<figure>
+  <figcaption>
+    <strong id="pt-caption">Table3: Summary of COVID-19 cases probability in Portugal</strong><br>
+    <span id="pt-summary">The probability of the cases occurrence.</span>
+  </figcaption>
+  <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
+  <tr>
+    <th>Date<br><br></th>
+    <th>Issue<br><br></th>
+    <th>Value<br>(%)</th>
   </tr>
   <tr>
     <td>2021-08-27</td>
-    <td>Hospital total patients</td>
-    <td>544</td>
+    <td>Comfirmed rate</td>
+    <td style="text-align:right;"> 12.02</td>
+  </tr>
+   <tr>
+    <td>2021-08-27</td>
+    <td>Recovery rate</td>
+    <td style="text-align:right;">88.54</td>
   </tr>
   <tr>
     <td>2021-08-27</td>
-    <td>ICU total patients</td>
-    <td>544</td>
-  </tr>
-  <tr>
-    <td>2021-08-27</td>
-    <td>length of lockdown</td>
-    <td>312</td>
+    <td>Death rate</td>
+    <td style="text-align:right;">1.72</td>
   </tr>
   </table>
 </figure>
@@ -288,24 +325,37 @@ summary <- bind_cols(summary1, summary3) %>%
 
 <figure>
   <figcaption>
-    <strong id="vacc-caption">Table3: Summary of COVID-19 vaccine coverage in Portugal</strong><br>
-    <span id="vacc-summary">About the total first dose rate and total vaccination completion rate of all group.</span>
+    <strong id="pt-caption">Table4: Summary of COVID-19 vaccine coverage in all kinds of groups</strong><br>
+    <span id="pt-summary">Based on 6 groups to analyse. </span>
   </figcaption>
-  <table aria-labelledby="vacc-caption" aria-describedby="vacc-summary">
-   <tr>
-    <th>Date<br></th>
-    <th>Issue<br></th>
-    <th>Value<br>(%)</th>
-  </tr>
+  <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
   <tr>
-    <td>2021-08-27</td>
-    <td>First dose rate</td>
-    <td>92.50</td>
+    <th>Group</th>
+    <th>Vaccine coverage (%)</th>
   </tr>
-  <tr>
-    <td>2021-08-27</td>
-    <td>dose completion rate</td>
-    <td>81.55</td>
+  <tr style="text-align:right;">
+    <td>Age18_24</td>
+    <td>39.51</td>
+  </tr>
+   <tr style="text-align:right;">
+    <td>Age25_49</td>
+    <td>73.47</td>
+  </tr>
+  <tr style="text-align:right;">
+    <td>Age50_59</td>
+    <td>90.25</td>
+  </tr>
+  <tr style="text-align:right;">
+    <td>Age60-69</td>
+    <td>95.01</td>
+  </tr>
+   <tr style="text-align:right;">
+    <td>Age70_79</td>
+    <td>100.00</td>
+  </tr>
+   <tr style="text-align:right;">
+    <td>Age80+</td>
+    <td>97.66</td>
   </tr>
   </table>
 </figure>

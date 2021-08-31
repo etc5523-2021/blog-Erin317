@@ -17,3 +17,5 @@ d-title p{
 d-article h1{
    font-family:copperplate,fantasy;
 }
+
+tr:hover {background-color: #F0E5CF;}
