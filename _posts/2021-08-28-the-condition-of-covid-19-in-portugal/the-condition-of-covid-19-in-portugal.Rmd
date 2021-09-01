@@ -26,6 +26,7 @@ d-article figure tr:hover {background-color: #EEEEEE;}
 ```{r}
 library(tidyverse)
 library(tsibble)
+library(readr)
 library(lubridate)
 library(DT)
 library(plotly)
@@ -55,7 +56,7 @@ The table below records the cases which related the COVID-19, it's designed to e
 ```{r}
 # get the COVID-19 data in Portugal.
 pt_comfirmed <- read_csv(here::here("data/confirmed_global.csv")) %>% 
-  rename( Country = "Country/Region") %>% 
+  rename(Country = "Country/Region") %>% 
   filter(Country == "Portugal") %>%
   select(-`Province/State`) %>% 
   pivot_longer(cols = c(-Country:-Long),
@@ -272,7 +273,7 @@ summary4 <- merged %>%
 <figure>
   <figcaption>
     <strong id="pt-caption">Table2: Summary of COVID-19 cases in Portugal</strong><br>
-    <span id="pt-summary">Accumulated cases data till now and the average of new daily cases.</span>
+    <span id="pt-summary">The average of new daily dead is not high in recent days.</span>
   </figcaption>
   <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
    <tr>
@@ -306,7 +307,7 @@ summary4 <- merged %>%
 <figure>
   <figcaption>
     <strong id="pt-caption">Table3: Summary of COVID-19 cases probability in Portugal</strong><br>
-    <span id="pt-summary">The probability of the cases occurrence.</span>
+    <span id="pt-summary">The recovery rate is pretty high which is a good signal.</span>
   </figcaption>
   <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
   <tr>
@@ -336,7 +337,7 @@ summary4 <- merged %>%
 <figure>
   <figcaption>
     <strong id="pt-caption">Table4: Summary of COVID-19 vaccine coverage in all kinds of groups</strong><br>
-    <span id="pt-summary">Based on 6 groups to analyse. </span>
+    <span id="pt-summary">The vaccine coverage is high for the age range is above 50 years old, compared with the young group.</span>
   </figcaption>
   <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
   <tr>
@@ -373,7 +374,7 @@ summary4 <- merged %>%
 <figure>
   <figcaption>
     <strong id="pt-caption">Table5: Summary of COVID-19 effects in Portugal.</strong><br>
-    <span id="pt-summary">Based on 2 aspects: total amount patients in hospital and accumulated length of lockdown.</span>
+    <span id="pt-summary">Based on 2 aspects: All of the patients who in the hospital are ill critically.</span>
   </figcaption>
   <table aria-labelledby="pt-caption" aria-describedby="pt-summary">
   <tr>

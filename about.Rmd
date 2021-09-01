@@ -1,10 +1,7 @@
 ---
 title: "About this blog"
 description: |
-  This plog manly discuss about the situation of the coronavirus in Portugal.
+  This plog manly discuss about the coronavirus in Portugal.
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
 
