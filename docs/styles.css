@@ -1,14 +1,14 @@
 body {
-  background-color: #F0E5CF;
+  background-color: #E7E0C9;
 }
 
 .distill-site-nav {
-  background-color: #4B6587;
+  background-color: #11324D;
   font-family: Lucida Handwriting, cursive;
 }
 
 h1{
-  color:#4B6587; 
+  color:#11324D; 
 }
 
 d-title h1{
@@ -17,6 +17,7 @@ d-title h1{
 
 d-title p{
   font-family: "Lucida Console", monospace;
+  color:#11324D;
 }
 
 d-article h1{

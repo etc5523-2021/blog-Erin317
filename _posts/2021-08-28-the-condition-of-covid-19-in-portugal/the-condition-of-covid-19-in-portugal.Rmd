@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 ```{css}
-d-article figure tr:hover {background-color: #EEEEEE;}
+d-article figure tr:hover {background-color: #C1CFC0;}
 ```
 
 ```{r}
@@ -106,8 +106,8 @@ datatable(combined_pt,
           options = list(pageLength = 5,
                          initComplete = JS(
                             "function(settings, json) {",
-                            "$(this.api().table().header()).css({'background-color': '#4B6587',
-                            'color': '#FDFAF6'});","}"),
+                            "$(this.api().table().header()).css({'background-color': '#C1CFC0',
+                            'color': '#2B2B2B'});","}"),
                          dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
           colnames = c("Date",
                       "Comfirmed",
