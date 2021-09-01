@@ -28,7 +28,6 @@ d-article figure tr:hover {background-color: #C1CFC0;}
 ```{r}
 library(tidyverse)
 library(tsibble)
-library(readr)
 library(lubridate)
 library(DT)
 library(plotly)
@@ -433,6 +432,26 @@ According to these numerical statistical tables, we can know that:
 * The total number of patients in ICU is not that much, and it seems that the patients in hospital are severely ill patients. Besides, evidence suggests it is 40% to 60% more transmissible than the earlier Alpha (Β.1.1.7) variant which was the first major variant of concern in the EU. In addition, the Delta variant may be associated with higher risk of hospitalisation.
 
 # Citation
+
+joachim-gassen. tidycovid19 package. https://github.com/joachim-gassen/tidycovid19
+
+JOHNS HOPKINS. CSSEGISandData. COVID-19 times series data (csse_covid_19_time_series)
+https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
+
+European Centre for Disease Prevention and Control (ECDC). https://www.ecdc.europa.eu/en/covid-19/vaccine-roll-out-overview.
+
+Wang E, Cook D, Hyndman RJ (2020). "A new tidy data structure to support exploration and modeling of temporal data." https://doi.org/10.1080/10618600.2019.1695624.
+
+Yihui Xie, Joe Cheng, Xianying Tan. A Wrapper of the JavaScript Library 'DataTables'
+https://CRAN.R-project.org/package=DT 
+
+Ramnath Vaidyanathan, Kent Russell and Gareth Watts. sparkline: 'jQuery' Sparkline 'htmlwidget'
+ https://CRAN.R-project.org/package=sparkline 
+
+C. Sievert. Interactive Web-Based Data Visualization with R, plotly, and shiny.
+  Chapman and Hall/CRC Florida, 2020.
+  
+Grolemund G, Wickham H (2011). "Dates and Times Made Easy with lubridate." Journal of Statistical Software, 40(3), 1–25. https://www.jstatsoft.org/v40/i03/.
 
 ECDC and EMA update on COVID-19. https://www.ecdc.europa.eu/en/news-events/ecdc-and-ema-update-covid-19
 

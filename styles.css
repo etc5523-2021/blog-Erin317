@@ -23,3 +23,12 @@ d-title p{
 d-article h1{
    font-family: "Lucida Console", monospace;
 }
+
+d-article h3{
+  color: #11324D;
+  font-size: 20px;
+}
+
+a:hover {
+  color: #865439;
+}
