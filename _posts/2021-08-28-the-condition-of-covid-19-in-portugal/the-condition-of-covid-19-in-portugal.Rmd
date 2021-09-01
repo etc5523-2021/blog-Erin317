@@ -32,6 +32,7 @@ library(DT)
 library(plotly)
 #remotes::install_github("joachim-gassen/tidycovid19")
 library(tidycovid19)
+library(sparkline)
 ```
 
 # Introduction 
@@ -49,19 +50,16 @@ Besides, the `tidycovid19` package can be found in [joachim-gassen's github](htt
 
 The vaccine data is downloaded from [European Centre for Disease Prevention and Control (ECDC)](https://www.ecdc.europa.eu/en/covid-19/vaccine-roll-out-overview), which covers in adults (aged 18 years and above) across EU/EEA countries. The variables include: total doses received, number of first doses administered, number of second doses administered and number of administered doses classified as ‘unspecified’.
 
-The table below records the cases which related the COVID-19, it's designed to explore data by yourself. Let's try!
-
-
 
 ```{r}
 # get the COVID-19 data in Portugal.
-pt_comfirmed <- read_csv(here::here("data/confirmed_global.csv")) %>% 
+pt_confirmed <- read_csv(here::here("data/confirmed_global.csv")) %>% 
   rename(Country = "Country/Region") %>% 
   filter(Country == "Portugal") %>%
   select(-`Province/State`) %>% 
   pivot_longer(cols = c(-Country:-Long),
                names_to = "Date",
-               values_to = "Accumulated_comfirmed")
+               values_to = "Accumulated_confirmed")
 ```
 
 ```{r}
@@ -86,39 +84,65 @@ pt_dead <- read_csv(here::here("data/deaths_global.csv")) %>%
 
 ```{r}
 # combine them together
-combined_pt <- pt_comfirmed %>% 
+combined_pt <- pt_confirmed %>% 
   full_join(pt_recovered, by = c("Country", "Lat","Long","Date")) %>% 
   full_join(pt_dead, by = c("Country", "Lat","Long","Date")) %>%
   select(-Country: -Long) %>% 
-  mutate(New_confirmed = difference(Accumulated_comfirmed, default = 0),
-         New_recovered = difference(Accumulated_recovered, default = 0),
-         New_dead = difference(Accumulated_dead, default = 0)) %>% 
+  mutate("New confirmed" = difference(Accumulated_confirmed, default = 0),
+         "New recovered" = difference(Accumulated_recovered, default = 0),
+         "New dead" = difference(Accumulated_dead, default = 0)) %>% 
+  rename("Accumulated confirmed" = Accumulated_confirmed,
+         "Accumulated recovered" = Accumulated_recovered,
+         "Accumulated dead" = Accumulated_dead) %>% 
   mutate(Date = mdy(Date),
          Date = as.Date(Date,format = "%Y-%m-%d"))
 ```
 
 ```{r}
-datatable(combined_pt, 
-          filter = "top",
-          rownames = FALSE,
+spark_value <- combined_pt %>%
+  filter(Date == "2021-08-27") %>% 
+  pivot_longer(cols = -Date,
+               values_to = "Value",
+               names_to = "Issue") %>% 
+  select(-Date)
+```
+
+```{r}
+spark_trend <- combined_pt %>% 
+   mutate(confirmed_trend = spk_chr(combined_pt$`Accumulated confirmed`, type = "line"),
+          recovered_trend = spk_chr(combined_pt$`Accumulated recovered`, type = "line"),
+          dead_trend = spk_chr(combined_pt$`Accumulated dead`, type = "line"),
+          New_confirmed_trend = spk_chr(combined_pt$`New confirmed`, type = "line"),
+          New_recovered_trend = spk_chr(combined_pt$`New recovered`, type = "line"),
+          New_dead_trend = spk_chr(combined_pt$`New dead`, type = "line")) %>% 
+  select(Date,confirmed_trend,recovered_trend,dead_trend,New_confirmed_trend,New_recovered_trend,New_dead_trend) %>% 
+  pivot_longer(cols = -Date,
+               values_to = "Trend",
+               names_to = "Trend_Issue") %>% 
+  select(-Date) %>% 
+  unique()
+```
+
+The table below records the cases which related the COVID-19,  the trend illustrates the cases trend from `r min(combined_pt$Date)` to `r max(combined_pt$Date)`. And since there are missing value in `Accumulated recovered`, so the newest data shows that accumulated recovered data is 0, which is not reliable, just ignore it, we only focus on the overall trend. Besides, it's designed to explore data by yourself. Let's try!
+
+```{r}
+spark_combine <- bind_cols(spark_value, spark_trend) %>% 
+  select(-Trend_Issue) %>% 
+   datatable(escape = FALSE,
+            rownames = FALSE,
           class="stripe hover",
           extensions = 'Buttons', 
-          options = list(pageLength = 5,
+          options = list(pageLength = 6,
                          initComplete = JS(
                             "function(settings, json) {",
                             "$(this.api().table().header()).css({'background-color': '#C1CFC0',
                             'color': '#2B2B2B'});","}"),
                          dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
-          colnames = c("Date",
-                      "Comfirmed",
-                      "Recoverd", 
-                      "Dead",
-                      "New Comfirmed",
-                      "New Recovered",
-                      "New Dead"),
-    caption = "Table1: The overall COVID-19 data in Portugal")
-
+            colnames = c("Issue", "Accumulated cases<br>(2021-8-27)", "Trend"),
+           caption = "Table1: The trend of total cases since 2020-01-22 to 2021-08-27") %>% spk_add_deps()
+spark_combine
 ```
+
 
 # Exploratory data analysis
 
@@ -139,8 +163,9 @@ It can seen directly from the plot, although there are still confirmed cases eve
 In addition, there's a big gap since 20th May 2020, the new recovery rate dropped to 0, but after that, it rose slowly back to normal. At the beginning of this year, death rate increased at a peak, but soon afterwards the disease slowed down until now.
 
 ```{r}
-pt_plot <- combined_pt %>%
-  select(-Accumulated_comfirmed, -Accumulated_recovered, -Accumulated_dead) %>% 
+pt_plot <- combined_pt %>% 
+  select(-`Accumulated confirmed`, -`Accumulated recovered`, -`Accumulated dead`) %>% 
+  filter(`New confirmed` >= 0 & `New recovered` >=0 & `New dead` >= 0) %>% 
   mutate(Year = year(Date),
          Month = month(Date),
          Day = day(Date))
@@ -148,17 +173,17 @@ pt_plot <- combined_pt %>%
 
 ```{r}
 plot1 <- ggplot(pt_plot) +
-  geom_line(aes(x = Date, y = log(New_confirmed)),
+  geom_line(aes(x = Date, y = log(`New confirmed`)),
             color = "#84142D", 
             alpha = 0.8, 
             size = .5)+
-  geom_line(aes(x = Date, y = log(New_recovered)),
+  geom_line(aes(x = Date, y = log(`New recovered`)),
             color = "#FEA82F", 
             alpha = 0.8,
             size = .5)+
-  geom_col(aes(x = Date, y = log(New_dead)),
+  geom_col(aes(x = Date, y = log(`New dead`)),
            fill = "#F3F1F5",
-           bin = 50, )+
+           bin = 50)+
   theme_bw()+
   ylab("Amount")+
   labs(title = "The trend of COVID-19 in Portugal.")
@@ -220,18 +245,18 @@ summary_pt <- read_csv(here::here("data/vaccine_2021_eu.csv")) %>%
 ```{r}
 summary1 <- combined_pt %>%
   filter(Date == "2021-08-27") %>%
-  mutate("Death rate" = Accumulated_dead / Accumulated_comfirmed*100,
-         "Confirmed rate" = Accumulated_comfirmed / 8578859 *100,
-         "Recovery rate" = 912620 / Accumulated_comfirmed*100) %>% 
-  select(Date,Accumulated_comfirmed, Accumulated_dead, `Death rate`, `Confirmed rate`,`Recovery rate`)
+  mutate("Death rate" = `Accumulated dead` / `Accumulated confirmed`*100,
+         "Confirmed rate" = `Accumulated confirmed` / 8578859 *100,
+         "Recovery rate" = 912620 / `Accumulated confirmed`*100) %>% 
+  select(Date,`Accumulated confirmed`, `Accumulated dead`, `Death rate`, `Confirmed rate`,`Recovery rate`)
 ```
 
 ```{r}
 summary1_mean <- combined_pt %>% 
-  filter(New_recovered >= 0) %>% 
-  mutate(mean_new_confirmed = mean(New_confirmed, na.rm = TRUE),
-         mean_new_dead = mean(New_dead,na.rm = TRUE),
-         mean_new_recovery = mean(New_recovered,na.rm = TRUE)) %>% 
+  filter(`New recovered` >= 0) %>% 
+  mutate(mean_new_confirmed = mean(`New confirmed`, na.rm = TRUE),
+         mean_new_dead = mean(`New dead`,na.rm = TRUE),
+         mean_new_recovery = mean(`New recovered`,na.rm = TRUE)) %>% 
   select(mean_new_confirmed, mean_new_dead, mean_new_recovery) %>% 
   unique()
 ```
