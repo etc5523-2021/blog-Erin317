@@ -425,7 +425,7 @@ summary4 <- merged %>%
 
 According to these numerical statistical tables, we can know that:
 
-* The recovery rate is pretty high, about `r summary1$"Recovery rate[1]"`, and death rate is `r summary1$"Death rate[1]"`, which is a good news, the COVID-19 is fairly under control in Portugal. What's more, Portugal is often portrayed as a relatively successful case in the control of COVID-19's March 2020 outbreak in Europe due to timely confinement measures, commonly referred to as the lockdown.
+* The recovery rate is pretty high, about `r round(summary1$"Recovery rate",2)`%, and death rate is `r round(summary1$"Death rate",2)`%, which is a good news, the COVID-19 is fairly under control in Portugal. What's more, Portugal is often portrayed as a relatively successful case in the control of COVID-19's March 2020 outbreak in Europe due to timely confinement measures, commonly referred to as the lockdown.
 
 * There are some reasons for the vaccine coverage of the young is low. The total population of age below 18 years old is unknown, so we cannot calculate the coverage, but research shows that cases of COVID-19 in younger children do not appear to cause onward transmission as often as cases in older children and adults. Children aged between one and 18 years of age have much lower rates of hospitalisation and severe disease requiring intensive hospital care than other age groups.
 
