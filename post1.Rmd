@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 ```{css}
-d-article figure tr:hover {background-color: #C1CFC0;}
+d-article figure tr:hover {background-color: #D7E9F7;}
 ```
 
 ```{r}
@@ -40,6 +40,7 @@ library(sparkline)
 
 Since December 2019,the outbreak began. Since that, the disease has spread worldwide, leading to ongoing pandemic. Millions died, but we're still not sure what caused it yet. This blog has collected the newest data for readers to explore, and we meanly focus the COVID-19 situation in Portugal, which located on the Iberian Peninsula, in south-western Europe. 
 
+![](https://www.theregreview.org/wp-content/uploads/2020/07/GettyImages-178890724-e1593602490899.jpg)
 I remember, the first time I heard about Portugal is because of association football, the most popular sport in Portugal. On 26 May 2010, Portugal attained the third place in the FIFA World Ranking, their highest ever, and In recent years, Portugal has consistently maintained a top 10 and, sometimes, a top 5 FIFA world rank position. Speaking of football, I bet, nobody wouldn't like Cristiano Ronaldo, which is a Portuguese professional footballer, his spirit and ambition were as high as ever, as he strives to break records and conquer the world, that really impress me a lot. I admit that Ronaldo is the most important reason why I am interested to analyse the COVID-19 in Portugal.
 
 
@@ -136,7 +137,7 @@ spark_combine <- bind_cols(spark_value, spark_trend) %>%
           options = list(pageLength = 6,
                          initComplete = JS(
                             "function(settings, json) {",
-                            "$(this.api().table().header()).css({'background-color': '#C1CFC0',
+                            "$(this.api().table().header()).css({'background-color': '#D7E9F7',
                             'color': '#2B2B2B'});","}"),
                          dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
             colnames = c("Issue", "Accumulated cases<br>(2021-8-27)", "Trend"),
