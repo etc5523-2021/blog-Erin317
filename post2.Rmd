@@ -1,0 +1,246 @@
+---
+title: "The COVID-19 in Ukraine"
+description: |
+  A brief summary of the COVID-19 situation in Ukraine 🇺🇦
+author:
+  - name: Xinying Xu
+    url: https://github.com/etc5523-2021/blog-Erin317
+date: 09-11-2021
+output:
+  distill::distill_article:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      error = FALSE,
+                      message = FALSE,
+                      options("scipen"=100, "digits"=4))
+```
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(dygraphs)
+library(xts)
+library(leaflet)
+library(kableExtra)
+library(formattable)
+library(rgeos)
+library(rnaturalearth)
+```
+
+# Introduction
+
+In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places. As RFE/RL’s Amos Chapple discovered when he explored the site, Ukraine's "Tunnel of Love" can reportedly trace its origins all the way back to the tensions and secrecy of the Cold War. Visitors travel from around the world to see the famous tree tunnel running through the small western town of Klevan, especially for the couples, who believe that if they make a wish here and if their love is sincere, their wishes will come true.
+
+![](https://gdb.rferl.org/8CCCC996-6D34-43CD-A047-1B9908BCF627_w3194_n_st_d2.jpg)
+
+The Tunnel of Love is an industrial railway connection which links Klevan with Orzhiv. The railway is surrounded by beautiful green arches and it is located approx 7 kilometers from the city of Klevan, Ukraine, mainly for wooden work and employed three times a day. A track is about 3 kilometers long.
+
+Anyway, this train tunnel is an amazing example of what happens when nature is allowed to grow freely around man-made infrastructure. Many say that is a lifetime experience you simply can not miss, especially for romantics.
+
+```{css}
+.d-article-with-toc .l-body tr:hover {background-color: #D7E9F7;}
+d-article img{
+  width: 80%;
+}
+d-article h3{
+  color: #11324D;
+  font-size: 20px;
+  font-family: "Lucida Console", monospace;
+}
+```
+# Data description
+
+This post will discuss about the COVID-19 in Ukraine, manly focus on 3 aspects: the overall status of Europe, especially in Ukraine, the vaccination coverage and tests and patients situation. 
+
+Data collected from 4 sources: the accumulated data and new cases data collected from [Johns Hopkins](https://github.com/govex/COVID-19) and [Our World in data](https://github.com/owid/covid-19-data/tree/master/public/data), covered the time period from March 2020 to 12 September 2021. The vaccination data collected from [World Health Organization(WHO)](https://covid19.who.int/info/), the information of tests and patients collected from [
+Ministry of Health Contact Center for COVID-19](https://moz.gov.ua/article/news/operativna-informacija-pro-poshirennja-koronavirusnoi-infekcii-2019-cov19), updated in 11 September 2021.
+
+Especially, in order to map the distribution of COVID-19 of Europe, we use `rnaturalearth` package to get the shapefile data of Europe.
+
+```{r}
+region <- read_excel("data/covid-19-cases-in-ukraine-by-region.xlsx") %>% 
+  rename("Confirmed" = `Total cases`)
+```
+
+```{r}
+ukr_covid <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
+  filter(location == "Ukraine")
+```
+
+```{r}
+ukr_confirmed <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")%>% 
+  rename(Country = "Country/Region") %>% 
+  filter(Country == "Ukraine") %>%
+  select(-`Province/State`, -Lat, -Long) %>% 
+  pivot_longer(cols = -Country,
+               names_to = "Date",
+               values_to = "Accumulated_confirmed")
+```
+
+```{r}
+ukr_recovered <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv") %>% 
+  rename( Country = "Country/Region") %>% 
+  filter(Country == "Ukraine") %>%
+  select(-`Province/State`,-Lat,-Long) %>% 
+  pivot_longer(cols = -Country,
+               names_to = "Date",
+               values_to = "Accumulated_recovered")
+```
+
+```{r}
+ukr_dead <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv") %>% 
+  rename( Country = "Country/Region") %>% 
+  filter(Country == "Ukraine") %>%
+  select(-`Province/State`,-Lat,-Long) %>% 
+  pivot_longer(cols = -Country,
+               names_to = "Date",
+               values_to = "Accumulated_dead")
+```
+
+```{r}
+patient <- read_excel("data/ukr_patient.xlsx")
+```
+
+# Exploratory data analysis
+
+I will have a brief explanation of each plot that I made, the data story will present at the end of each part, corresponding with the graphs.
+
+### The whole pandemic in Ukraine & data story 🌟
+
+Firstly, Let's roughly have a look at the interactive map of the entire Europe. 
+
+```{r}
+# combine them together
+combined_ukr <- ukr_confirmed %>%
+  full_join(ukr_recovered, by = c("Country", "Date")) %>% 
+  full_join(ukr_dead, by = c("Country", "Date")) %>%
+  select(-Country) %>% 
+  rename("Accumulated confirmed" = Accumulated_confirmed,
+         "Accumulated recovered" = Accumulated_recovered,
+         "Accumulated dead" = Accumulated_dead) %>% 
+  mutate(Date = mdy(Date),
+         Date = as.Date(Date,format = "%Y-%m-%d"))
+```
+
+
+```{r}
+# make the map of covid-19 in Europe
+eu_dat <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
+  filter(continent == "Europe") %>% 
+  select(location,date,total_cases) %>% 
+  filter(date == "2021-09-10") # filter the newest data
+# get the shapfile data of Europe
+eumap <- ne_countries(continent = "europe", returnclass = "sf", scale = "medium") %>% 
+  filter(subunit %in% eu_dat$location) %>% 
+  select(name)
+# combine data of europe map with covid-19 data of europe.
+eu_combine <- eumap %>% 
+  full_join(eu_dat, by = c("name" = "location")) %>% 
+  mutate(total_cases = total_cases / 1000) %>% sf::st_as_sf()
+```
+
+```{r}
+mybins <- c(0,200,400,600,800,1000,Inf)
+mypalette <- colorBin( palette="RdYlBu", 
+                           domain=eu_combine$total_cases, 
+                           na.color="transparent",
+                           bins = mybins)
+mytext = paste("Name:", eu_combine$name,"<br>",
+               "Total cases:", eu_combine$total_cases,"<br>",
+               sep = "") %>% 
+  lapply(htmltools::HTML)
+
+leaflet(eu_combine) %>%
+  setView(lat = 54.52, lng = 15.25,zoom=2) %>% 
+  addTiles() %>% 
+  addPolygons(color = "#444444", 
+              weight = 1,
+              dashArray = "3",
+              smoothFactor = 0.5,
+              opacity = 1.0, 
+              fillOpacity = 0.7,
+              fillColor = ~mypalette(total_cases),
+              label = mytext,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto"),
+              highlightOptions = highlightOptions(color = "white", 
+                                                  weight = 2,
+                                                  bringToFront = TRUE)) %>% 
+  addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+  addLegend( pal=mypalette, 
+             values=~total_cases, 
+             opacity=0.9, title = "Total cases(T)",
+             position = "bottomleft" )
+
+```
+
+It's important to know about the overall situation at first. In this map, I grouped the accumulated data into 6 levels, which represent the different severity level respectively. Apparently, the group which the total cases interval is above 1000 thousand, take the majority of the overall Europe, only very few countries like Iceland, Norway, it seems that the pandemic is not that serious in those countries, it fairly under control. In Ukraine, about 2412 thousand accumulated cases, it has been seriously affected compared with others. Russia is the worst-hit country across Europe, already exceeded 7000 thousand confirmed cases.
+
+The table shows the distribution of COVID-19 cases by regions of Ukraine, which updated in 11 September 2021, so there may be some deviations from the latest data. 
+
+
+```{r}
+# make table by regions
+region$Confirmed <- color_tile("white", "#E1701A")(region$Confirmed)
+region$Recoveries <- color_tile("white","#6D3580")(region$Recoveries)
+region$Deaths <- ifelse(
+  region$Deaths  > 2000,
+  cell_spec(region$Deaths, color = "red", bold = T),
+  cell_spec(region$Deaths, color = "green", italic = T)
+)
+
+kbl(region, escape = F,
+    caption = "Distribution of COVID-19 cases by regions in 11 Sep 2021") %>%
+  kable_paper("hover",full_width = F)%>%
+  column_spec(1, width = "3cm") %>% 
+  scroll_box(width = "500px", height = "500px")
+```
+
+
+It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed cases and accumulated recovered cases, and the number of accumulated deaths is highest across Ukraine as well. This is because kyiv is the capital of and most populous city of Ukraine, passengers volume is huge, resulting in the rapid spread of epidemic. Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. 
+
+
+# Reference
+
+***Data source***
+
+Ministry of Health Contact Center for COVID-19. Operational information on the spread and prevention of COVID-19. https://moz.gov.ua/article/news/operativna-informacija-pro-poshirennja-koronavirusnoi-infekcii-2019-cov19.
+
+Our world in data. Data on COVID-19 (corovirus) by Our World in Data. https://github.com/owid/covid-19-data/tree/master/public/data.
+
+The repository of COVID-19 data underlying the analysis created by the Johns Hopkins Centers for Civic Impact for the Coronavirus Resource Center (CRC). https://github.com/govex/COVID-19.
+
+Vaccination data retrieved from World Health Organization(WHO). https://covid19.who.int/info/.
+
+***R packages***
+
+Wickham H, Averick M, Bryan J, Chang W. Tidyverse: "Welcome to the tidyverse.” Journal of Open Source Software, 4(43), 1686. doi: 10.21105/joss.01686.
+
+Hadley Wickham ORCID iD [aut], Jennifer Bryan ORCID iD [aut, cre], RStudio [cph, fnd]. readxl: Read Excel Files. https://CRAN.R-project.org/package=readxl.
+
+Dan Vanderkam, Petr Shevtsov, JJ Allaire. dygraphs: Interface to 'Dygraphs' Interactive Time Series Charting Library. https://CRAN.R-project.org/package=dygraphs
+
+Jeffrey A. Ryan [aut, cph],Joshua M. Ulrich. xts: Provide for uniform handling of R's different time-based data classes by extending zoo, maximizing native format information preservation and allowing for user level customization and extension. https://github.com/joshuaulrich/xts.
+
+Joe Cheng [aut, cre], Bhaskar Karambelkar [aut], Yihui Xie [aut]. leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet' Library. https://CRAN.R-project.org/package=leaflet.
+
+Hao Zhu[aut, cre]. kableExtra: Construct Complex Table with 'kable' and Pipe Syntax. https://CRAN.R-project.org/package=kableExtra
+
+Grolemund G, Wickham H (2011). "Dates and Times Made Easy with lubridate." Journal of Statistical Software, 40(3), 1–25. https://www.jstatsoft.org/v40/i03/.
+
+Kun Ren [aut, cre], Kenton Russell [aut]. formattable: Create 'Formattable' Data Structures. https://CRAN.R-project.org/package=formattable
+
+Roger Bivand[cre, aut], Colin Rundel [aut]. rgeos: Interface to Geometry Engine - Open Source ('GEOS'). https://CRAN.R-project.org/package=rgeos
+
+rnaturalearth: An R package to hold and facilitate interaction with Natural Earth map data. https://cran.r-project.org/web/packages/rnaturalearth/README.html
+
+

@@ -7,8 +7,10 @@ navbar:
   right:
     - text: "Publish"
       menu:
-        - text: "Post 1"
+        - text: "🌀Post 1"
           href: post1.html
+        - text: "🌀Post 2"
+          href: post2.html
     - icon: fab fa-github
       href: https://github.com/etc5523-2021/blog-Erin317
 output: 

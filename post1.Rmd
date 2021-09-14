@@ -1,7 +1,7 @@
 ---
 title: "The COVID-19 in Portugal"
 description: |
-  A brief summary of the COVID-19 situation in Portugal.
+  A brief summary of the COVID-19 situation in Portugal 🇵🇹
 author:
   - name: Xinying Xu
     url: https://example.com/norajones
