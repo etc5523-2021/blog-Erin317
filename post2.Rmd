@@ -42,7 +42,7 @@ Before we get started, let's talk about something not that serious. In Ukraine, 
 
 The Tunnel of Love is an industrial railway connection which links Klevan with Orzhiv. The railway is surrounded by beautiful green arches and it is located approx 7 kilometers from the city of Klevan, Ukraine, mainly for wooden work and employed three times a day. A track is about 3 kilometers long.
 
-Anyway, this train tunnel is an amazing example of what happens when nature is allowed to grow freely around man-made infrastructure. Many say that is a lifetime experience you simply can not miss, especially for romantics.
+Anyway, this train tunnel is an amazing example of what happens when nature is allowed to grow freely around man-made infrastructure. Many say that is a lifetime experience you simply can not miss, especially for romantics, I really would like to travel to Ukraine after the covid has passed.
 
 ```{css}
 .d-article-with-toc .l-body tr:hover {background-color: #D7E9F7;}
@@ -70,7 +70,7 @@ Ministry of Health Contact Center for COVID-19](https://moz.gov.ua/article/news/
 
 Especially, in order to map the distribution of COVID-19 of Europe, we use `rnaturalearth` package to get the shapefile data of Europe.
 
-What's more, the vaccination data has some limitations. It's pretty hard to collect daily data of Ukraine without so many missing values, so in this aspect, it's best to compare the fully coverage rate of Ukraine with the whole European countries.
+What's more, the vaccination data has some limitations. It's pretty hard to collect daily data of Ukraine without so many missing values, so in this aspect, it's best to compare the fully coverage rate of Ukraine with the whole European countries. And the two maps didn't cover all the European countries.
 
 ```{r}
 region <- read_excel("data/covid-19-cases-in-ukraine-by-region.xlsx") %>% 
@@ -186,7 +186,7 @@ leaflet(eu_combine) %>%
   addProviderTiles(providers$CartoDB.DarkMatter) %>% 
   addLegend( pal=mypalette, 
              values=~total_cases, 
-             opacity=0.9, title = "Total cases(T)",
+             opacity=0.9, title = "Total cases(Thousand)",
              position = "bottomleft" )
 
 ```
@@ -252,9 +252,15 @@ We can know that, there were two outbreaks happened in Ukraine apparently, on 28
 
 ### Data story 🌟
 
+As Ukraine entered April 2021, it experienced a second outbreak, this country was in its third lockdown phase since the COVID-19 pandemic began in spring 2020, and its second lockdown in the space of just three months. Until 12th September 2021, at least 57772 Ukrainians have died as a result of the pandemic. And unfortunately for Ukraine, either the war with Russia or the pandemic, in both case, had cause casualties. Worse yet, the Ukrainian government's response to coronavirus has been a textbook example of failed crisis management.
 
+There are mainly 3 reasons why Ukraine experienced a second outbreak. At first, although Ukraine took lockdown measures to cut the chains of contact with the disease, however, when cutting the chains, this also includes tracking and tracing, which Ukraine has not effectively utilized.
 
+Secondly, as the more contagious British strand of the virus spreads through Ukraine, hospitals are already at near capacity and the death toll is surging. For example, there were 19,281 COVID-related deaths in Ukraine in 2020. Just in the half of 2021, there have already been 35,300 deaths, the fatality rate seems to has accelerated. This indicates that lockdown conditions have been too lax and have come too late, the related measurements didn't work well. 
 
+Finally, the cities like Iceland, China, The United stated and the United Kingdom are rapidly vaccinating their citizens, Ukraine has made virtually no progress at all.
+
+These factors contributed the bad situation now.
 
 ## The vaccination coverage 🌟
 
@@ -262,13 +268,19 @@ This is the map of distribution of **fully** vaccination coverage across the Eur
 
 ```{r}
 eu_vaccine <- read_csv("data/vaccination-data.csv") %>% 
-  filter(WHO_REGION == "EURO")
+  filter(WHO_REGION == "EURO") %>% 
+  mutate(COUNTRY = recode(COUNTRY,
+                          "The United Kingdom" = "United Kingdom",
+                          "Bosnia and Herzegovina" = "Bosnia and Herz.",
+                          "Republic of Moldova" = "Moldova"))
+
 vac_coverage <- eu_vaccine %>% 
   left_join(eumap, by = c("COUNTRY" = "name"))
 # Europe population  
 eu_pop <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
   filter(continent == "Europe") %>% 
-  select(location,population) %>% 
+  select(location,population) %>%
+  mutate(location = recode(location,"Bosnia and Herzegovina" = "Bosnia and Herz.")) %>% 
   unique()
 # calculate the vacc coverage of the Europe
 eu_coverage <- vac_coverage %>% 
@@ -315,7 +327,7 @@ leaflet(eu_coverage) %>%
              position = "bottomleft")
 ```
 
-Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. It seems that Ukraine owns the lowest coverage rate in the whole European countries. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
+Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. Actually, Ukraine owns the lowest coverage rate in the whole European countries. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
 
 ### Data story 🌟
 
@@ -329,7 +341,7 @@ The second reason for low vaccination rates in Ukraine is disinformation spread 
 
 The third reason for Ukraine's poor vaccination results is the failed leadership of the current government and Ministry of Health led. The government's January 2021 agreement for 1.9 million Chinese Sinovac vaccines was hardly a confidence builder with the Ukrainian public, which was less than persuasive for many Ukrainians. A subsequent attempt to obtain Indian produced Astra Zeneca CovidShield vaccines was also met with skepticism by the Ukrainian public.
 
-Nowadays, more than 80% of all deaths from COVID-19 in Ukraine are over 60 years old. Health officials say this is a indication that the elderly are at the highest risk of coronavirus disease. And the older the person, the higher this risk. So the only way to protect yourself from severe COVID-19 and death is to get vaccinated. Their effectiveness in preventing hospitalization and death is over 90%.
+Nowadays, more than 80% of all deaths from COVID-19 in Ukraine are over 60 years old. Health officials say this is a indication that the elderly are at the highest risk of coronavirus disease. And the older the person, the higher this risk. So the only way to protect yourself from severe COVID-19 and death is to get vaccinated. The effectiveness in preventing hospitalization and death is over 90%. While other countries in Europe move towards majority vaccination levels and the gradual relaxation of lockdown restrictions.
 
 # Summary
 
@@ -343,7 +355,7 @@ kable(patient_tidy, caption = "The summary of test and pandemic situation.\nUpda
                       "The whole pandemic in Ukraine" = 4))
 ```
 
-In summary, based on the newest data from Ministry of Health Contact Center, the fatality rate is about 2.3%, recovery rate is about 95%, which is pretty high, the total test were performed about 38702 per day. Although there are new cases continue to be reported every day, luckily, the death rate is relatively low and the trend of infection rate seems to be flattening out. 
+In summary, based on the newest data from Ministry of Health Contact Center, the fatality rate is about 2.3%, recovery rate is about 95%, which is pretty high, the total test were performed about 38702 per day. Although there are still new cases continue to be reported every day and the trend of deaths is increasing, while the overall trend of infection rate seems to be flattening out recently.
 
 The truth is, Ukraine is the country which has the lowest vaccination coverage rate across the Europe, because of the suspicion of vaccines, which is a common case in Ukraine. But people need urgently need to get vaccinated immediately, it's the only way to protect ourselves. The current government should be to blame for the poor vaccination results.
 
@@ -361,7 +373,7 @@ Vaccination data retrieved from World Health Organization(WHO). https://covid19.
 
 ***R packages***
 
-Wickham H, Averick M, Bryan J, Chang W. Tidyverse: "Welcome to the tidyverse.” Journal of Open Source Software, 4(43), 1686. doi: 10.21105/joss.01686.
+Wickham H, Averick M, Bryan J, Chang W. Tidyverse: "Welcome to the tidyverse.” Journal of Open Source Software. https://CRAN.R-project.org/package=tidyverse.
 
 Hadley Wickham ORCID iD [aut], Jennifer Bryan ORCID iD [aut, cre], RStudio [cph, fnd]. readxl: Read Excel Files. https://CRAN.R-project.org/package=readxl.
 
