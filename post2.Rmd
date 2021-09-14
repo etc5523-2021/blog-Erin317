@@ -8,6 +8,8 @@ author:
 date: 09-11-2021
 output:
   distill::distill_article:
+    includes: 
+      in_header: header.html
     toc: true
     toc_depth: 3
     toc_float: true
@@ -36,18 +38,30 @@ library(rnaturalearth)
 
 # Introduction
 
-Before we get started, let's talk about something not that serious. In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places. As RFE/RL’s Amos Chapple discovered when he explored the site, Ukraine's "Tunnel of Love" can reportedly trace its origins all the way back to the tensions and secrecy of the Cold War. Visitors travel from around the world to see the famous tree tunnel running through the small western town of Klevan, especially for the couples, who believe that if they make a wish here and if their love is sincere, their wishes will come true.
+Before we get started, let's talk about something not that serious. In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places, as you can see from the header. Its origins all the way back to the tensions and secrecy of the Cold War.
 
-![](https://gdb.rferl.org/8CCCC996-6D34-43CD-A047-1B9908BCF627_w3194_n_st_d2.jpg)
+Visitors travel from around the world to see the famous tree tunnel running through the small western town of Klevan, especially for the couples, who believe that if they make a wish here and if their love is sincere, their wishes will come true.
+
+You can also explore Lutsk tourist attractions like Lubart's Castle and Cathedral of the St. Peter and Paul along the ways.
+
+![](https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/content_entry5b155bed5711a8176e9f9783/5d259ca47a6a16000d02063f/files/ukraine-lutsk-travel-photo-20190709110655675-main-image.jpg)
 
 The Tunnel of Love is an industrial railway connection which links Klevan with Orzhiv. The railway is surrounded by beautiful green arches and it is located approx 7 kilometers from the city of Klevan, Ukraine, mainly for wooden work and employed three times a day. A track is about 3 kilometers long.
 
-Anyway, this train tunnel is an amazing example of what happens when nature is allowed to grow freely around man-made infrastructure. Many say that is a lifetime experience you simply can not miss, especially for romantics, I really would like to travel to Ukraine after the covid has passed.
+Anyway, this train tunnel is an amazing example of what happens when nature is allowed to grow freely around man-made infrastructure. Many say that is a lifetime experience you simply can not miss, especially for romantics. I really would like to travel to Ukraine after the covid has passed.
 
 ```{css}
 .d-article-with-toc .l-body tr:hover {background-color: #D7E9F7;}
-d-article img{
-  width: 80%;
+.article-banner {
+  width: auto;
+  height: auto;
+  border: 0;
+}
+img[src="Tunnel.png"] {
+  border: 0;
+  padding: 0;
+  width: 100%;
+  margin: 0px 0px 0px 0px;
 }
 d-article h2{
   color: #11324D;
@@ -223,10 +237,10 @@ These two plots shows the trend of COVID-19 cases in Ukraine.
 ```{r}
 dy1 <- combined_ukr
 don1=xts(x = dy1[,-1],order.by = dy1$Date)
-dygraph(don1, main = "The trend of accumulated data of covid-19 in Ukraine") %>% 
+dygraph(don1, main = "Plot1:The trend of accumulated data of covid-19 in Ukraine") %>% 
   dySeries("Accumulated confirmed", label = "Confirmed",fillGraph = TRUE,color = "#E1701A") %>%
   dySeries("Accumulated recovered", label = "Recovered",fillGraph = TRUE,color = "#6D3580") %>%
-  dySeries("Accumulated dead",label = "Dead",fillGraph = TRUE, color = "#AAAAAA") %>% 
+  dySeries("Accumulated dead",label = "Dead",fillGraph = TRUE, color = "#7F7C82") %>% 
   dyHighlight(highlightSeriesOpts = list(strokeWidth = 3)) %>% 
   dyRangeSelector(height = 20)
   
@@ -239,10 +253,10 @@ dy2 <- ukr_covid %>%
   select(date,new_cases, new_deaths)
 # create the xts format
 don2=xts( x=dy2[,-1], order.by=dy2$date)
-dygraph(don2, main = "The trend of new cases and new deaths in Ukraine") %>%
+dygraph(don2, main = "Plot2:The trend of new cases and new deaths in Ukraine") %>%
   dyRangeSelector(height = 20) %>% 
   dySeries("new_cases", label = "New cases", color = "#E1701A") %>% 
-  dySeries("new_deaths", label = "New deaths", color = "#AAAAAA", fillGraph = TRUE) %>% 
+  dySeries("new_deaths", label = "New deaths", color = "#7F7C82", fillGraph = TRUE) %>% 
   dyHighlight(highlightCircleSize = 3, 
               highlightSeriesBackgroundAlpha = 0.2,
               hideOnMouseOut = FALSE)
@@ -252,7 +266,9 @@ We can know that, there were two outbreaks happened in Ukraine apparently, on 28
 
 ### Data story 🌟
 
-As Ukraine entered April 2021, it experienced a second outbreak, this country was in its third lockdown phase since the COVID-19 pandemic began in spring 2020, and its second lockdown in the space of just three months. Until 12th September 2021, at least 57772 Ukrainians have died as a result of the pandemic. And unfortunately for Ukraine, either the war with Russia or the pandemic, in both case, had cause casualties. Worse yet, the Ukrainian government's response to coronavirus has been a textbook example of failed crisis management.
+As Ukraine entered April 2021, why this country could experienced a second outbreak according to the plot 2?
+
+Actually, Ukraine was in its third lockdown phase since the COVID-19 pandemic began in spring 2020, and its second lockdown in the space of just three months. Until 12th September 2021, from plot1 we can know that, at least 57772 Ukrainians have died as a result of the pandemic. And unfortunately for Ukraine, either the war with Russia or the pandemic, in both case, had cause casualties. Worse yet, the Ukrainian government's response to coronavirus has been a textbook example of failed crisis management.
 
 There are mainly 3 reasons why Ukraine experienced a second outbreak. At first, although Ukraine took lockdown measures to cut the chains of contact with the disease, however, when cutting the chains, this also includes tracking and tracing, which Ukraine has not effectively utilized.
 
