@@ -206,8 +206,39 @@ kbl(region, escape = F,
 ```
 
 
-It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed cases and accumulated recovered cases, and the number of accumulated deaths is highest across Ukraine as well. This is because kyiv is the capital of and most populous city of Ukraine, passengers volume is huge, resulting in the rapid spread of epidemic. Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. 
+It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed cases and accumulated recovered cases, and the number of accumulated deaths is highest across Ukraine as well. This is because kyiv is the capital of and most populous city of Ukraine, passengers volume is huge, resulting in the rapid spread of epidemic. Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. People should avoid travelling to these cities.
 
+These two plots shows the trend of COVID-19 cases in Ukraine.
+
+```{r}
+dy1 <- combined_ukr
+don1=xts(x = dy1[,-1],order.by = dy1$Date)
+dygraph(don1, main = "The trend of accumulated data of covid-19 in Ukraine") %>% 
+  dySeries("Accumulated confirmed", label = "Confirmed",fillGraph = TRUE,color = "#E1701A") %>%
+  dySeries("Accumulated recovered", label = "Recovered",fillGraph = TRUE,color = "#6D3580") %>%
+  dySeries("Accumulated dead",label = "Dead",fillGraph = TRUE, color = "#AAAAAA") %>% 
+  dyHighlight(highlightSeriesOpts = list(strokeWidth = 3)) %>% 
+  dyRangeSelector(height = 20)
+  
+```
+
+The trend of confirmed and recovered is gradually flattens out recently, instead of continuing, it means that health systems are less overwhelmed, which could saves more lives. The deaths amount is always very low, which is a good news. However, there are some missing values in recovered data so it dropped at 0 suddenly, which is not reliable. Besides, you can set the time range selector at any time that you want, to explore the data by yourself.
+
+```{r}
+dy2 <- ukr_covid %>% 
+  select(date,new_cases, new_deaths)
+# create the xts format
+don2=xts( x=dy2[,-1], order.by=dy2$date)
+dygraph(don2, main = "The trend of new cases and new deaths in Ukraine") %>%
+  dyRangeSelector(height = 20) %>% 
+  dySeries("new_cases", label = "New cases", color = "#E1701A") %>% 
+  dySeries("new_deaths", label = "New deaths", color = "#AAAAAA", fillGraph = TRUE) %>% 
+  dyHighlight(highlightCircleSize = 3, 
+              highlightSeriesBackgroundAlpha = 0.2,
+              hideOnMouseOut = FALSE)
+```
+
+We can know that, there were two outbreaks happened in Ukraine apparently, on 28th Nov 2021 and 3th Apr 2021 respectively, while the situation of new daily deaths is not serious at all, has been keeping at a very low level. However, the trend has a slightly upward in recent days.
 
 # Reference
 
