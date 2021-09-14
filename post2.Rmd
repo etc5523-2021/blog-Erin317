@@ -315,19 +315,19 @@ leaflet(eu_coverage) %>%
              position = "bottomleft")
 ```
 
-Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. It seems that Ukraine owns the lowest coverage rate in the whole European countries. Luckily, there is a low fatalities in Ukraine. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
+Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. It seems that Ukraine owns the lowest coverage rate in the whole European countries. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
 
 ### Data story 🌟
 
 So why does Ukraine have such dismal vaccination numbers despite facing an increasingly lethal covid crisis?
 
-According to the updated news, there are three main reasons. The first is the country’s Soviet legacy. Suspicion of vaccines was a Soviet staple which is still prevalent in Ukraine, particularly among the older population, which is ironically the most vulnerable to infection and death from covid.
+According to the updated news, there are three main reasons. The first is the country's Soviet legacy. Suspicion of vaccines was a Soviet staple which is still prevalent in Ukraine, particularly among the older population, which is ironically the most vulnerable to infection and death from covid.
 
 The second reason for low vaccination rates in Ukraine is disinformation spread via traditional and social media. This disinformation is being pushed primarily by Russian and Kremlin-friendly sources, a trend which was also identified last month by the US State Department.
 
-[A March 2021 survey by Research and Branding ](https://rb.com.ua/uk/blog-uk/omnibus-uk/stavlennja-ukrainciv-do-vakcinacii-proti-covid-19-2/?fbclid=IwAR1bV72G6U0MgRBYo7wE5yqnikBUkNkIp3ojyAYW6SZbXcE_qLInNTGOgP8) showed that 60 % of Ukrainians would not get vaccinated even if it was provided free of charge. Alarmingly, this represented a sharp increase from the February figure of 40 %.
+[A March 2021 survey by Research and Branding ](https://rb.com.ua/uk/blog-uk/omnibus-uk/stavlennja-ukrainciv-do-vakcinacii-proti-covid-19-2/?fbclid=IwAR1bV72G6U0MgRBYo7wE5yqnikBUkNkIp3ojyAYW6SZbXcE_qLInNTGOgP8) showed that 60% of Ukrainians would not get vaccinated even if it was provided free of charge. Alarmingly, this represented a sharp increase from the February figure of 40%.
 
-The third reason for Ukraine's poor vaccination results is the failed leadership of the current government and Ministry of Health led. The government's January 2021 agreement for 1.9 million Chinese Sinovac vaccines was hardly a confidence builder with the Ukrainian public, which was less than persuasive for many Ukrainians. A subsequent attempt to obtain Indian-produced Astra Zeneca CovidShield vaccines was also met with skepticism by the Ukrainian public.
+The third reason for Ukraine's poor vaccination results is the failed leadership of the current government and Ministry of Health led. The government's January 2021 agreement for 1.9 million Chinese Sinovac vaccines was hardly a confidence builder with the Ukrainian public, which was less than persuasive for many Ukrainians. A subsequent attempt to obtain Indian produced Astra Zeneca CovidShield vaccines was also met with skepticism by the Ukrainian public.
 
 Nowadays, more than 80% of all deaths from COVID-19 in Ukraine are over 60 years old. Health officials say this is a indication that the elderly are at the highest risk of coronavirus disease. And the older the person, the higher this risk. So the only way to protect yourself from severe COVID-19 and death is to get vaccinated. Their effectiveness in preventing hospitalization and death is over 90%.
 
@@ -343,8 +343,12 @@ kable(patient_tidy, caption = "The summary of test and pandemic situation.\nUpda
                       "The whole pandemic in Ukraine" = 4))
 ```
 
-# Reference
+In summary, based on the newest data from Ministry of Health Contact Center, the fatality rate is about 2.3%, recovery rate is about 95%, which is pretty high, the total test were performed about 38702 per day. Although there are new cases continue to be reported every day, luckily, the death rate is relatively low and the trend of infection rate seems to be flattening out. 
 
+The truth is, Ukraine is the country which has the lowest vaccination coverage rate across the Europe, because of the suspicion of vaccines, which is a common case in Ukraine. But people need urgently need to get vaccinated immediately, it's the only way to protect ourselves. The current government should be to blame for the poor vaccination results.
+
+# Reference
+ 
 ***Data source***
 
 Ministry of Health Contact Center for COVID-19. Operational information on the spread and prevention of COVID-19. https://moz.gov.ua/article/news/operativna-informacija-pro-poshirennja-koronavirusnoi-infekcii-2019-cov19.
