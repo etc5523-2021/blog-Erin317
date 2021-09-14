@@ -28,7 +28,7 @@ This assessment is due Fri Sep 17 2021 11.55PM AEST.
 
 My selected country is Ukraine.
 
-The relevant blog post for this assessment is in [FILL].html
+The relevant blog post for this assessment is in https://etc5523-2021.github.io/blog-Erin317/post2.html
 
 - [ ] Selected a new country
 - [ ] Data Story 1
