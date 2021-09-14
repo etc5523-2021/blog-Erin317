@@ -36,7 +36,7 @@ library(rnaturalearth)
 
 # Introduction
 
-In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places. As RFE/RL’s Amos Chapple discovered when he explored the site, Ukraine's "Tunnel of Love" can reportedly trace its origins all the way back to the tensions and secrecy of the Cold War. Visitors travel from around the world to see the famous tree tunnel running through the small western town of Klevan, especially for the couples, who believe that if they make a wish here and if their love is sincere, their wishes will come true.
+Before we get started, let's talk about something not that serious. In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places. As RFE/RL’s Amos Chapple discovered when he explored the site, Ukraine's "Tunnel of Love" can reportedly trace its origins all the way back to the tensions and secrecy of the Cold War. Visitors travel from around the world to see the famous tree tunnel running through the small western town of Klevan, especially for the couples, who believe that if they make a wish here and if their love is sincere, their wishes will come true.
 
 ![](https://gdb.rferl.org/8CCCC996-6D34-43CD-A047-1B9908BCF627_w3194_n_st_d2.jpg)
 
@@ -49,6 +49,12 @@ Anyway, this train tunnel is an amazing example of what happens when nature is a
 d-article img{
   width: 80%;
 }
+d-article h2{
+  color: #11324D;
+  font-size: 20px;
+  font-family: "Lucida Console", monospace;
+}
+
 d-article h3{
   color: #11324D;
   font-size: 20px;
@@ -57,12 +63,14 @@ d-article h3{
 ```
 # Data description
 
-This post will discuss about the COVID-19 in Ukraine, manly focus on 3 aspects: the overall status of Europe, especially in Ukraine, the vaccination coverage and tests and patients situation. 
+This post will discuss about the COVID-19 in Ukraine, manly focus on 2 aspects: the overall status of Europe, especially in Ukraine and the vaccination coverage. Finally, a brief summary of tests and patients situation. 
 
 Data collected from 4 sources: the accumulated data and new cases data collected from [Johns Hopkins](https://github.com/govex/COVID-19) and [Our World in data](https://github.com/owid/covid-19-data/tree/master/public/data), covered the time period from March 2020 to 12 September 2021. The vaccination data collected from [World Health Organization(WHO)](https://covid19.who.int/info/), the information of tests and patients collected from [
 Ministry of Health Contact Center for COVID-19](https://moz.gov.ua/article/news/operativna-informacija-pro-poshirennja-koronavirusnoi-infekcii-2019-cov19), updated in 11 September 2021.
 
 Especially, in order to map the distribution of COVID-19 of Europe, we use `rnaturalearth` package to get the shapefile data of Europe.
+
+What's more, the vaccination data has some limitations. It's pretty hard to collect daily data of Ukraine without so many missing values, so in this aspect, it's best to compare the fully coverage rate of Ukraine with the whole European countries.
 
 ```{r}
 region <- read_excel("data/covid-19-cases-in-ukraine-by-region.xlsx") %>% 
@@ -112,7 +120,7 @@ patient <- read_excel("data/ukr_patient.xlsx")
 
 I will have a brief explanation of each plot that I made, the data story will present at the end of each part, corresponding with the graphs.
 
-### The whole pandemic in Ukraine & data story 🌟
+## The whole pandemic in Ukraine 🌟
 
 Firstly, Let's roughly have a look at the interactive map of the entire Europe. 
 
@@ -183,7 +191,7 @@ leaflet(eu_combine) %>%
 
 ```
 
-It's important to know about the overall situation at first. In this map, I grouped the accumulated data into 6 levels, which represent the different severity level respectively. Apparently, the group which the total cases interval is above 1000 thousand, take the majority of the overall Europe, only very few countries like Iceland, Norway, it seems that the pandemic is not that serious in those countries, it fairly under control. In Ukraine, about 2412 thousand accumulated cases, it has been seriously affected compared with others. Russia is the worst-hit country across Europe, already exceeded 7000 thousand confirmed cases.
+It's important to know about the overall situation at first. In this map, I grouped the accumulated data into 6 levels, which represent the different severity level respectively. Apparently, the group which the total cases interval is above 1000 thousand, take the majority of the overall Europe, only very few countries like Iceland, Norway, it seems that the pandemic is not that serious in those countries, it fairly under control. In Ukraine, about 2.412 million accumulated cases, it has been seriously affected compared with others. Russia is the worst-hit country across Europe, already exceeded 7 million confirmed cases.
 
 The table shows the distribution of COVID-19 cases by regions of Ukraine, which updated in 11 September 2021, so there may be some deviations from the latest data. 
 
@@ -206,7 +214,9 @@ kbl(region, escape = F,
 ```
 
 
-It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed cases and accumulated recovered cases, and the number of accumulated deaths is highest across Ukraine as well. This is because kyiv is the capital of and most populous city of Ukraine, passengers volume is huge, resulting in the rapid spread of epidemic. Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. People should avoid travelling to these cities.
+It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed cases and accumulated recovered cases, and the number of accumulated deaths is highest across Ukraine as well. This is because kyiv is the capital of and most populous city of Ukraine, passengers volume is huge, resulting in the rapid spread of epidemic.
+
+Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. People should avoid travelling to these cities.
 
 These two plots shows the trend of COVID-19 cases in Ukraine.
 
@@ -239,6 +249,99 @@ dygraph(don2, main = "The trend of new cases and new deaths in Ukraine") %>%
 ```
 
 We can know that, there were two outbreaks happened in Ukraine apparently, on 28th Nov 2021 and 3th Apr 2021 respectively, while the situation of new daily deaths is not serious at all, has been keeping at a very low level. However, the trend has a slightly upward in recent days.
+
+### Data story 🌟
+
+
+
+
+
+## The vaccination coverage 🌟
+
+This is the map of distribution of **fully** vaccination coverage across the Europe.
+
+```{r}
+eu_vaccine <- read_csv("data/vaccination-data.csv") %>% 
+  filter(WHO_REGION == "EURO")
+vac_coverage <- eu_vaccine %>% 
+  left_join(eumap, by = c("COUNTRY" = "name"))
+# Europe population  
+eu_pop <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
+  filter(continent == "Europe") %>% 
+  select(location,population) %>% 
+  unique()
+# calculate the vacc coverage of the Europe
+eu_coverage <- vac_coverage %>% 
+  right_join(eu_pop, by = c("COUNTRY" = "location")) %>% 
+  select(COUNTRY,PERSONS_FULLY_VACCINATED,population,geometry) %>% 
+  mutate(fully_rate = PERSONS_FULLY_VACCINATED/population*100,
+         fully_rate = round(fully_rate,3)) %>% 
+  select(-PERSONS_FULLY_VACCINATED,-population) %>% 
+  filter(!is.na(fully_rate)) %>% sf::st_as_sf()
+```
+
+```{r}
+mypalette2 <- colorQuantile(palette="RdYlBu", 
+                           domain=eu_coverage$fully_rate,
+                           n = 5,
+                           na.color="transparent")
+mytext2 = paste("Name:", eu_coverage$COUNTRY,"<br>",
+               "Fully vaccinated rate:", eu_coverage$fully_rate,"%<br>",
+               sep = "") %>% 
+  lapply(htmltools::HTML)
+
+leaflet(eu_coverage) %>%
+  setView(lat = 54.52, lng = 10,zoom = 3) %>% 
+  addTiles() %>% 
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addPolygons(color = "#444444", 
+              dashArray = "3",
+              weight = 1, 
+              smoothFactor = 0.5,
+              opacity = 1.0, 
+              fillOpacity = 0.8,
+              fillColor = ~mypalette2(eu_coverage$fully_rate),
+              label = mytext2,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto"),
+              highlightOptions = highlightOptions(color = "white", 
+                                                  weight = 2,
+                                                  bringToFront = TRUE)) %>% 
+  addLegend( pal = mypalette2, 
+             values = ~fully_rate, 
+             opacity = 0.9, title = "Fully vaccinated rate(%)",
+             position = "bottomleft")
+```
+
+Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. It seems that Ukraine owns the lowest coverage rate in the whole European countries. Luckily, there is a low fatalities in Ukraine. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
+
+### Data story 🌟
+
+So why does Ukraine have such dismal vaccination numbers despite facing an increasingly lethal covid crisis?
+
+According to the updated news, there are three main reasons. The first is the country’s Soviet legacy. Suspicion of vaccines was a Soviet staple which is still prevalent in Ukraine, particularly among the older population, which is ironically the most vulnerable to infection and death from covid.
+
+The second reason for low vaccination rates in Ukraine is disinformation spread via traditional and social media. This disinformation is being pushed primarily by Russian and Kremlin-friendly sources, a trend which was also identified last month by the US State Department.
+
+[A March 2021 survey by Research and Branding ](https://rb.com.ua/uk/blog-uk/omnibus-uk/stavlennja-ukrainciv-do-vakcinacii-proti-covid-19-2/?fbclid=IwAR1bV72G6U0MgRBYo7wE5yqnikBUkNkIp3ojyAYW6SZbXcE_qLInNTGOgP8) showed that 60 % of Ukrainians would not get vaccinated even if it was provided free of charge. Alarmingly, this represented a sharp increase from the February figure of 40 %.
+
+The third reason for Ukraine's poor vaccination results is the failed leadership of the current government and Ministry of Health led. The government's January 2021 agreement for 1.9 million Chinese Sinovac vaccines was hardly a confidence builder with the Ukrainian public, which was less than persuasive for many Ukrainians. A subsequent attempt to obtain Indian-produced Astra Zeneca CovidShield vaccines was also met with skepticism by the Ukrainian public.
+
+Nowadays, more than 80% of all deaths from COVID-19 in Ukraine are over 60 years old. Health officials say this is a indication that the elderly are at the highest risk of coronavirus disease. And the older the person, the higher this risk. So the only way to protect yourself from severe COVID-19 and death is to get vaccinated. Their effectiveness in preventing hospitalization and death is over 90%.
+
+# Summary
+
+```{r}
+patient_tidy <- patient %>% 
+  mutate(Value = scales::comma(Value))
+kable(patient_tidy, caption = "The summary of test and pandemic situation.\nUpdated: 11 September 2021") %>% 
+  kable_paper( full_width = F) %>%
+  pack_rows(index = c("The last day" = 3, 
+                      "Tested per day" = 3, 
+                      "The whole pandemic in Ukraine" = 4))
+```
 
 # Reference
 
