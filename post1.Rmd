@@ -34,6 +34,8 @@ library(plotly)
 #remotes::install_github("joachim-gassen/tidycovid19")
 library(tidycovid19)
 library(sparkline)
+library(dygraphs)
+library(xts)
 ```
 
 # Introduction 
@@ -96,55 +98,45 @@ combined_pt <- pt_confirmed %>%
   rename("Accumulated confirmed" = Accumulated_confirmed,
          "Accumulated recovered" = Accumulated_recovered,
          "Accumulated dead" = Accumulated_dead) %>% 
+  filter(`New recovered` >= 0) %>% 
   mutate(Date = mdy(Date),
          Date = as.Date(Date,format = "%Y-%m-%d"))
 ```
 
 ```{r}
-spark_value <- combined_pt %>%
-  filter(Date == "2021-08-27") %>% 
-  pivot_longer(cols = -Date,
-               values_to = "Value",
-               names_to = "Issue") %>% 
-  select(-Date)
+trend <-combined_pt %>% 
+  mutate(year = year(Date),
+         month = month(Date))
+trend$Date <- with(trend, sprintf("%d-%02d", year, month))
+trend <- trend %>% 
+  select(Date,`New confirmed`,`New recovered`,`New dead`) %>% 
+  group_by(Date) %>% 
+  summarise(`New confirmed` = spk_chr(`New confirmed`, type = "line"),
+            `New recovered` = spk_chr(`New recovered`, type = "line"),
+            `New dead` = spk_chr(`New dead`, type = "line"))
 ```
 
-```{r}
-spark_trend <- combined_pt %>% 
-   mutate(confirmed_trend = spk_chr(combined_pt$`Accumulated confirmed`, type = "line"),
-          recovered_trend = spk_chr(combined_pt$`Accumulated recovered`, type = "line"),
-          dead_trend = spk_chr(combined_pt$`Accumulated dead`, type = "line"),
-          New_confirmed_trend = spk_chr(combined_pt$`New confirmed`, type = "line"),
-          New_recovered_trend = spk_chr(combined_pt$`New recovered`, type = "line"),
-          New_dead_trend = spk_chr(combined_pt$`New dead`, type = "line")) %>% 
-  select(Date,confirmed_trend,recovered_trend,dead_trend,New_confirmed_trend,New_recovered_trend,New_dead_trend) %>% 
-  pivot_longer(cols = -Date,
-               values_to = "Trend",
-               names_to = "Trend_Issue") %>% 
-  select(-Date) %>% 
-  unique()
-```
-
-The table below records the cases which related the COVID-19,  the trend illustrates the cases trend from `r min(combined_pt$Date)` to `r max(combined_pt$Date)`. And since there are missing value in `Accumulated recovered`, so the newest data shows that accumulated recovered data is 0, which is not reliable, just ignore it, we only focus on the overall trend. Besides, it's designed to explore data by yourself. Let's try!
+The table below records the cases which related the COVID-19,  the trend illustrates the cases trend from `r min(combined_pt$Date)` to `r max(combined_pt$Date)`. And since there are missing value in `Accumulated recovered`, so the newest data shows that accumulated recovered data is 0, which is not reliable, just ignore it, we only focus on the new cases trend. Besides, it's designed to explore data by yourself. Let's try!
 
 ```{r}
-spark_combine <- bind_cols(spark_value, spark_trend) %>% 
-  select(-Trend_Issue) %>% 
+dtable <- trend %>% 
    datatable(escape = FALSE,
             rownames = FALSE,
           class="stripe hover",
           extensions = 'Buttons', 
-          options = list(pageLength = 6,
+          options = list(
                          initComplete = JS(
                             "function(settings, json) {",
                             "$(this.api().table().header()).css({'background-color': '#D7E9F7',
                             'color': '#2B2B2B'});","}"),
-                         dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf')),
-            colnames = c("Issue", "Accumulated cases<br>(2021-8-27)", "Trend"),
-           caption = "Table1: The trend of total cases since 2020-01-22 to 2021-08-27") %>% spk_add_deps()
-spark_combine
+                         dom = 'Bfrtip', buttons = c('csv', 'excel', 'pdf'),
+                         fnDrawCallback = htmlwidgets::JS('function(){
+                                                              HTMLWidgets.staticRender();
+                                                              }')),
+            colnames = c("Date", "New confirmed", "New recovered", "New dead"),
+           caption = "Table1: The trend of new cases since 2020-01-22 to 2021-08-27") %>% spk_add_deps()
+dtable
 ```
-
 
 # Exploratory data analysis
 
@@ -162,35 +154,25 @@ map_covid19(merged, type = "confirmed", region = "Europe")
 
 It can seen directly from the plot, although there are still confirmed cases everyday, corresponding with a high recovery rate, which must be related with popularization of vaccines. In addition, we might occur missing value, the value of the new confirmed variable suddenly missed since 4th Aug, that will result in errors when calculating.
 
-In addition, there's a big gap since 20th May 2020, the new recovery rate dropped to 0, but after that, it rose slowly back to normal. At the beginning of this year, death rate increased at a peak, but soon afterwards the disease slowed down until now.
+ At the beginning of this year, death rate increased at a peak, but soon afterwards the disease slowed down until now, and it seems to that there were two outbreaks in Portugal.
 
 ```{r}
 pt_plot <- combined_pt %>% 
   select(-`Accumulated confirmed`, -`Accumulated recovered`, -`Accumulated dead`) %>% 
-  filter(`New confirmed` >= 0 & `New recovered` >=0 & `New dead` >= 0) %>% 
-  mutate(Year = year(Date),
-         Month = month(Date),
-         Day = day(Date))
+  filter(`New confirmed` >= 0 & `New recovered` >=0 & `New dead` >= 0)
 ```
 
 ```{r}
-plot1 <- ggplot(pt_plot) +
-  geom_line(aes(x = Date, y = log(`New confirmed`)),
-            color = "#84142D", 
-            alpha = 0.8, 
-            size = .5)+
-  geom_line(aes(x = Date, y = log(`New recovered`)),
-            color = "#FEA82F", 
-            alpha = 0.8,
-            size = .5)+
-  geom_col(aes(x = Date, y = log(`New dead`)),
-           fill = "#F3F1F5",
-           bin = 50)+
-  theme_bw()+
-  ylab("Amount")+
-  labs(title = "The trend of COVID-19 in Portugal.")
-
-ggplotly(plot1)
+don=xts( x=pt_plot[,-1], order.by=pt_plot$Date)
+dygraph(don, main = "The new cases trend of COVID-19 in Portugal") %>%
+  dyRangeSelector(height = 20) %>% 
+  dySeries("New confirmed", color = "#84142D") %>% 
+  dySeries("New recovered", color = "#FEA82F") %>% 
+  dySeries("New dead",color = "#7F7C82") %>% 
+  dyOptions(fillGraph = TRUE) %>% 
+  dyHighlight(highlightCircleSize = 3, 
+              highlightSeriesBackgroundAlpha = 0.6,
+              hideOnMouseOut = FALSE)
 ```
 
 
