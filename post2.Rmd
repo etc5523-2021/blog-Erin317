@@ -36,7 +36,7 @@ library(rgeos)
 library(rnaturalearth)
 ```
 
-# Introduction
+# 💭 Introduction
 
 Before we get started, let's talk about something not that serious. In Ukraine, there's a famous place called ***The Tunnel of Love***, which is one of the most photographed places, as you can see from the header. Its origins all the way back to the tensions and secrecy of the Cold War.
 
@@ -75,7 +75,7 @@ d-article h3{
   font-family: "Lucida Console", monospace;
 }
 ```
-# Data description
+# 💭 Data description
 
 This post will discuss about the COVID-19 in Ukraine, manly focus on 2 aspects: the overall status of Europe, especially in Ukraine and the vaccination coverage. Finally, a brief summary of tests and patients situation. 
 
@@ -130,13 +130,13 @@ ukr_dead <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/
 patient <- read_excel("data/ukr_patient.xlsx")
 ```
 
-# Exploratory data analysis
+# 💭 Exploratory data analysis
 
 I will have a brief explanation of each plot that I made, the data story will present at the end of each part, corresponding with the graphs.
 
-## The whole pandemic in Ukraine 🌟
+## 🌷 The whole pandemic in Ukraine
 
-Firstly, Let's roughly have a look at the interactive map of the entire Europe. 
+Firstly, Let's roughly have a look at the interactive map of the entire Europe, which updated to the latest data.
 
 ```{r}
 # combine them together
@@ -157,24 +157,25 @@ combined_ukr <- ukr_confirmed %>%
 eu_dat <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
   filter(continent == "Europe") %>% 
   select(location,date,total_cases) %>% 
-  filter(date == "2021-09-10") # filter the newest data
+  filter(date == max(date))   # filter the newest data
+  
 # get the shapfile data of Europe
-eumap <- ne_countries(continent = "europe", returnclass = "sf", scale = "medium") %>% 
+eumap <- ne_countries(continent = "Europe", returnclass = "sf", scale = "medium") %>% 
   filter(subunit %in% eu_dat$location) %>% 
-  select(name)
+  select(subunit)
 # combine data of europe map with covid-19 data of europe.
 eu_combine <- eumap %>% 
-  full_join(eu_dat, by = c("name" = "location")) %>% 
-  mutate(total_cases = total_cases / 1000) %>% sf::st_as_sf()
+  right_join(eu_dat, by = c("subunit" = "location")) %>% 
+  mutate(total_cases = total_cases / 1000000) %>% sf::st_as_sf()
 ```
 
 ```{r}
-mybins <- c(0,200,400,600,800,1000,Inf)
+mybins <- c(0,1,2,3,4,5,Inf)
 mypalette <- colorBin( palette="RdYlBu", 
                            domain=eu_combine$total_cases, 
                            na.color="transparent",
                            bins = mybins)
-mytext = paste("Name:", eu_combine$name,"<br>",
+mytext = paste("Name:", eu_combine$subunit,"<br>",
                "Total cases:", eu_combine$total_cases,"<br>",
                sep = "") %>% 
   lapply(htmltools::HTML)
@@ -200,15 +201,14 @@ leaflet(eu_combine) %>%
   addProviderTiles(providers$CartoDB.DarkMatter) %>% 
   addLegend( pal=mypalette, 
              values=~total_cases, 
-             opacity=0.9, title = "Total cases(Thousand)",
+             opacity=0.9, title = "Total cases(Million)",
              position = "bottomleft" )
 
 ```
 
-It's important to know about the overall situation at first. In this map, I grouped the accumulated data into 6 levels, which represent the different severity level respectively. Apparently, the group which the total cases interval is above 1000 thousand, take the majority of the overall Europe, only very few countries like Iceland, Norway, it seems that the pandemic is not that serious in those countries, it fairly under control. In Ukraine, about 2.412 million accumulated cases, it has been seriously affected compared with others. Russia is the worst-hit country across Europe, already exceeded 7 million confirmed cases.
+It's important to know about the overall situation at first. In this map, I grouped the accumulated data into 6 levels, which represent the different severity level respectively. Apparently, the group which the total cases interval is less than 3 million, take the majority of the overall Europe, only very few countries like Iceland, Norway, it seems that the pandemic is not that serious in those countries, it fairly under control. In Ukraine, about `r eu_combine$total_cases[43]` million accumulated cases, it has been seriously affected compared with others. Russia is the worst-hit country across Europe, already `r eu_combine$total_cases[38]` million confirmed cases.
 
 The table shows the distribution of COVID-19 cases by regions of Ukraine, which updated in 11 September 2021, so there may be some deviations from the latest data. 
-
 
 ```{r}
 # make table by regions
@@ -232,7 +232,7 @@ It can be seen that, Kyiv city ranks first in terms of the accumulated confirmed
 
 Kharkiv city ranked second based on the accumulated situation of confirmed and recovered. In addition,it's interesting to realise, although the amount of these two aspects in Dnepropetrovsk city is not that much compared with Kharkiv, Lviv and Odessa, the deaths is much higher than these three, almost 4800 persons in total. People should avoid travelling to these cities.
 
-These two plots shows the trend of COVID-19 cases in Ukraine.
+These two plots shows the trend of COVID-19 cases in Ukraine, which updated to the latest data.
 
 ```{r}
 dy1 <- combined_ukr
@@ -246,7 +246,7 @@ dygraph(don1, main = "Plot1:The trend of accumulated data of covid-19 in Ukraine
   
 ```
 
-The trend of confirmed and recovered is gradually flattens out recently, instead of continuing, it means that health systems are less overwhelmed, which could saves more lives. The deaths amount is always very low, which is a good news. However, there are some missing values in recovered data so it dropped at 0 suddenly, which is not reliable. Besides, you can set the time range selector at any time that you want, to explore the data by yourself.
+The trends of confirmed and recovered are slightly increasing recently, it means that it seems to have a wide spread phenomenon again. The deaths amount is always relatively low, but the death rate has a upward trend compared with 2020. What's more, there are some missing values in recovered data so it dropped at 0 suddenly, which is not reliable. Besides, you can set the time range selector at any time that you want, to explore the data by yourself.
 
 ```{r}
 dy2 <- ukr_covid %>% 
@@ -262,9 +262,9 @@ dygraph(don2, main = "Plot2:The trend of new cases and new deaths in Ukraine") %
               hideOnMouseOut = FALSE)
 ```
 
-We can know that, there were two outbreaks happened in Ukraine apparently, on 28th Nov 2021 and 3th Apr 2021 respectively, while the situation of new daily deaths is not serious at all, has been keeping at a very low level. However, the trend has a slightly upward in recent days.
+We can know that, there were two outbreaks happened in Ukraine apparently, on 28th Nov 2021 and 3th Apr 2021 respectively. What's more, the trend of new cases has a slightly upward in recent days and the daily amount of new deaths is not optimistic, there are people died of COVID-19 every day.
 
-### Data story 🌟
+### 🌷 Data story
 
 As Ukraine entered April 2021, why this country could experienced a second outbreak according to the plot 2?
 
@@ -278,25 +278,22 @@ Finally, the cities like Iceland, China, The United stated and the United Kingdo
 
 These factors contributed the bad situation now.
 
-## The vaccination coverage 🌟
+## 🌷 The vaccination coverage
 
-This is the map of distribution of **fully** vaccination coverage across the Europe.
+This is the map of distribution of **fully** vaccination coverage across the Europe, which updated to the latest data.
 
 ```{r}
-eu_vaccine <- read_csv("data/vaccination-data.csv") %>% 
+eu_vaccine <- read_csv("https://covid19.who.int/who-data/vaccination-data.csv") %>% 
   filter(WHO_REGION == "EURO") %>% 
   mutate(COUNTRY = recode(COUNTRY,
                           "The United Kingdom" = "United Kingdom",
-                          "Bosnia and Herzegovina" = "Bosnia and Herz.",
                           "Republic of Moldova" = "Moldova"))
-
 vac_coverage <- eu_vaccine %>% 
-  left_join(eumap, by = c("COUNTRY" = "name"))
+  left_join(eumap, by = c("COUNTRY" = "subunit"))
 # Europe population  
 eu_pop <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv") %>% 
   filter(continent == "Europe") %>% 
   select(location,population) %>%
-  mutate(location = recode(location,"Bosnia and Herzegovina" = "Bosnia and Herz.")) %>% 
   unique()
 # calculate the vacc coverage of the Europe
 eu_coverage <- vac_coverage %>% 
@@ -309,10 +306,11 @@ eu_coverage <- vac_coverage %>%
 ```
 
 ```{r}
-mypalette2 <- colorQuantile(palette="RdYlBu", 
-                           domain=eu_coverage$fully_rate,
-                           n = 5,
-                           na.color="transparent")
+mybins2 <- c(0,15,30,45,60,75,Inf)
+mypalette2 <- colorBin(palette="RdYlBu",
+                       domain=eu_coverage$fully_rate,
+                       na.color="transparent",
+                       bins = mybins2)
 mytext2 = paste("Name:", eu_coverage$COUNTRY,"<br>",
                "Fully vaccinated rate:", eu_coverage$fully_rate,"%<br>",
                sep = "") %>% 
@@ -343,9 +341,9 @@ leaflet(eu_coverage) %>%
              position = "bottomleft")
 ```
 
-Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. Actually, Ukraine owns the lowest coverage rate in the whole European countries. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 40% to 80% in Europe.
+Unfortunately, the coverage rate in Ukraine is only `r tail(eu_coverage$fully_rate,1)`%, which belongs to the first group, represent the lowest coverage level, it's pretty low compared with other countries. Actually, Ukraine owns the lowest coverage rate in the whole European countries. In addition, Iceland and Spain should be portrayed as a relatively successful case in the control of COVID-19, with a very high fully vaccination coverage, especially Iceland, the amount of accumulated cases is relatively very low as well, epidemic prevention and control has been very successful. Overall, the range of coverage rate of most countries is from 45% to 75% in Europe.
 
-### Data story 🌟
+### 🌷 Data story
 
 So why does Ukraine have such dismal vaccination numbers despite facing an increasingly lethal covid crisis?
 
@@ -359,7 +357,7 @@ The third reason for Ukraine's poor vaccination results is the failed leadership
 
 Nowadays, more than 80% of all deaths from COVID-19 in Ukraine are over 60 years old. Health officials say this is a indication that the elderly are at the highest risk of coronavirus disease. And the older the person, the higher this risk. So the only way to protect yourself from severe COVID-19 and death is to get vaccinated. The effectiveness in preventing hospitalization and death is over 90%. While other countries in Europe move towards majority vaccination levels and the gradual relaxation of lockdown restrictions.
 
-# Summary
+# 💭 Summary
 
 ```{r}
 patient_tidy <- patient %>% 
@@ -371,11 +369,14 @@ kable(patient_tidy, caption = "The summary of test and pandemic situation.\nUpda
                       "The whole pandemic in Ukraine" = 4))
 ```
 
-In summary, based on the newest data from Ministry of Health Contact Center, the fatality rate is about 2.3%, recovery rate is about 95%, which is pretty high, the total test were performed about 38702 per day. Although there are still new cases continue to be reported every day and the trend of deaths is increasing, while the overall trend of infection rate seems to be flattening out recently.
+In summary, based on the newest data from Ministry of Health Contact Center, which updated in 11th September 2021, the fatality rate is about 2.3%, recovery rate is about 95%, which is pretty high, the total test were performed about 38702 per day. There are still new cases continue to be reported every day and the trend of deaths is on the rise. Worst of all, the overall trend of infection rate seems to begin to grow again recently, which is not a good signal.
 
-The truth is, Ukraine is the country which has the lowest vaccination coverage rate across the Europe, because of the suspicion of vaccines, which is a common case in Ukraine. But people need urgently need to get vaccinated immediately, it's the only way to protect ourselves. The current government should be to blame for the poor vaccination results.
+The truth is, Ukraine is the country which has the lowest vaccination coverage rate across the Europe, because of the suspicion of vaccines, which is a common case in Ukraine. But Ukrainians need to get vaccinated as soon as possible, it's the only way to protect ourselves. The current Ukrainian government should be to blame for the poor vaccination results, it is a bad example of failed crisis management.
 
-# Reference
+In a word, the situation of COVID-19 in Ukraine is with sense of urgency.👿
+
+
+# 💭 Reference
  
 ***Data source***
 
