@@ -1,10 +1,8 @@
 ---
 title: "The COVID-19 in Portugal"
-description: |
-  A brief summary of the COVID-19 situation in Portugal 🇵🇹
 author:
   - name: Xinying Xu
-    url: https://example.com/norajones
+    url: https://github.com/etc5523-2021/blog-Erin317
 date: 08-28-2021
 output:
   distill::distill_article:
@@ -23,6 +21,14 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```{css}
 d-article figure tr:hover {background-color: #D7E9F7;}
+.d-title{
+  background-image: url(https://ychef.files.bbci.co.uk/1600x900/p016dc49.webp);
+  width: 100%;
+  height: 300px;
+}
+d-title h1{
+  color: white;
+}
 ```
 
 ```{r}
